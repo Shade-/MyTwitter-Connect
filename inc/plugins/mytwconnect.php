@@ -289,8 +289,6 @@ function mytwconnect_usercp()
 		
 		// we have no auth here
 		if(empty($access_token) || empty($access_token['oauth_token']) || empty($access_token['oauth_token_secret'])) {
-			session_start();
-			session_destroy();
 			error($lang->mytwconnect_error_noauth);
 		}
 		
@@ -723,8 +721,6 @@ function mytwconnect_sync($user, $twdata = array(), $bypass = false)
 			
 		// we have no auth here
 		if(empty($access_token) || empty($access_token['oauth_token']) || empty($access_token['oauth_token_secret'])) {
-			session_start();
-			session_destroy();
 			error($lang->mytwconnect_error_noauth);
 		}
 		
