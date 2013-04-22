@@ -1,0 +1,45 @@
+<html>
+<head>
+<title>{$lang->mytwconnect_settings_title} - {$mybb->settings['bbname']}</title>
+{$headerinclude}
+</head>
+<body>
+ {$header}
+<table width="100%" border="0" align="center">
+<tr>
+	 {$usercpnav}
+	<td valign="top">
+		 {$inlinesuccess}
+		<form action="usercp.php?action=mytwconnect" method="post">
+			<input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+			<table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+			<thead>
+			<tr>
+				<th class="thead" colspan="2">
+					<strong>{$lang->mytwconnect_settings_title}</strong>
+				</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td class="trow1" valign="top" width="25%">
+					 {$text}
+				</td>
+				<td class="trow1" valign="top">
+					<table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" width="100%">
+					 {$options}
+					</table>
+				</td>
+			</tr>
+			</tbody>
+			</table>
+			<div style="text-align:center;">
+				<input type="submit" value="{$lang->mytwconnect_settings_save}" />
+			</div>
+		</form>
+	</td>
+</tr>
+</table>
+ {$footer}
+</body>
+</html>
