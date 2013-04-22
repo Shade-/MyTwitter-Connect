@@ -289,6 +289,7 @@ function mytwconnect_usercp()
 		
 		// we have no auth here
 		if(empty($access_token) || empty($access_token['oauth_token']) || empty($access_token['oauth_token_secret'])) {
+			session_start();
 			session_destroy();
 			error($lang->mytwconnect_error_noauth);
 		}
@@ -722,6 +723,7 @@ function mytwconnect_sync($user, $twdata = array(), $bypass = false)
 			
 		// we have no auth here
 		if(empty($access_token) || empty($access_token['oauth_token']) || empty($access_token['oauth_token_secret'])) {
+			session_start();
 			session_destroy();
 			error($lang->mytwconnect_error_noauth);
 		}
@@ -733,7 +735,7 @@ function mytwconnect_sync($user, $twdata = array(), $bypass = false)
 	$query = $db->simple_select("userfields", "*", "ufid = {$user['uid']}");
 	$userfields = $db->fetch_array($query);
 	if (empty($userfields)) {
-		$userfieldsData['uid'] = $user['uid'];
+		$userfieldsData['ufid'] = $user['uid'];
 	}
 	
 	// Twitter id, if empty we need to sync it
@@ -814,7 +816,7 @@ function mytwconnect_sync($user, $twdata = array(), $bypass = false)
 	}
 	// make sure we can do it
 	if (!empty($userfieldsData) AND !empty($user['uid'])) {
-		if (isset($userfieldsData['uid'])) {
+		if (isset($userfieldsData['ufid'])) {
 			$db->insert_query("userfields", $userfieldsData);
 		} else {
 			$db->update_query("userfields", $userfieldsData, "ufid = {$user['uid']}");
