@@ -14,9 +14,7 @@
 
 define("IN_MYBB", 1);
 define('THIS_SCRIPT', 'mytwconnect.php');
-define('ALLOWABLE_PAGE', 'twlogin,twregister,do_twlogin');
-// registration might fail for custom profile fields required at registration... workaround = IN_ADMINCP defined
-define("IN_ADMINCP", 1);
+define('ALLOWABLE_PAGE', 'twlogin,twregister,do_twlogin,authenticate');
 
 require_once "./global.php";
 
@@ -36,7 +34,7 @@ session_start();
 try {
 	include_once MYBB_ROOT . "mytwconnect/src/twitteroauth.php";
 }
-catch (Exception $e) {
+catch (Exception $e) {	
 	error_log($e);
 }
 
@@ -149,6 +147,11 @@ if ($mybb->input['action'] == "twregister") {
 				$settingsToAdd[$setting] = 0;
 			}
 		}
+		
+		/* Registration might fail for custom profile fields required at registration... workaround = IN_ADMINCP defined.
+		 Placed straight before the registration process to avoid conflicts with third party plugins messying around with
+		 templates (I'm looking at you, PHPTPL) */
+		define("IN_ADMINCP", 1);
 		
 		// register it
 		$newUserData = mytwconnect_register($newuser);
