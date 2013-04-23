@@ -148,11 +148,6 @@ if ($mybb->input['action'] == "twregister") {
 			}
 		}
 		
-		/* Registration might fail for custom profile fields required at registration... workaround = IN_ADMINCP defined.
-		 Placed straight before the registration process to avoid conflicts with third party plugins messying around with
-		 templates (I'm looking at you, PHPTPL) */
-		define("IN_ADMINCP", 1);
-		
 		// register it
 		$newUserData = mytwconnect_register($newuser);
 		
