@@ -26,6 +26,7 @@ $lang->load('mytwconnect');
 
 if (!$mybb->settings['mytwconnect_enabled']) {
 	header("Location: index.php");
+	exit;
 }
 
 session_start();
@@ -100,6 +101,7 @@ if ($mybb->input['action'] == "authenticate") {
 	if ($Twitter->http_code == 200) {
 		// The user has been verified
 		header("Location: ".$_SESSION['redirecturl']);
+		exit;
 	} else {
 		// No auth
 		error($lang->mytwconnect_error_noauth);
@@ -228,4 +230,5 @@ if ($mybb->input['action'] == "twregister") {
 
 if (!$mybb->input['action']) {
 	header("Location: index.php");
+	exit;
 }

@@ -268,7 +268,7 @@ function mytwconnect_usercp()
 		$lang->load('mytwconnect');
 	}
 	
-	if ($mybb->input['action'] == "do_twlink" OR ($mybb->input['action'] == "do_twlink" AND $mybb->request_method == "post")) {
+	if ($mybb->input['action'] == "do_twlink" OR ($mybb->input['action'] == "mytwconnect" AND $mybb->request_method == "post")) {
 		/* API LOAD */
 		try {
 			include_once MYBB_ROOT . "mytwconnect/src/twitteroauth.php";
@@ -282,32 +282,38 @@ function mytwconnect_usercp()
 			error($lang->mytwconnect_error_noconfigfound);
 		}
 		
-		$access_token = $_SESSION['access_token'];
-		
-		if(empty($access_token)) {
+		// if do_twlink, we are certainly sure that the user has an active access token, so just mytwconnect needs it
+		if($mybb->input['action'] == "mytwconnect") {
 			
-			$settings = array();
-			$settingsToCheck = array(
-				"twavatar",
-				"twbio",
-				"twlocation"
-			);
-			
-			// having some fun with variable variables
-			foreach ($settingsToCheck as $setting) {
-				if ($mybb->input[$setting] == 1) {
-					$settings[$setting] = 1;
-				} else {
-					$settings[$setting] = 0;
+			$access_token = $_SESSION['access_token'];
+			// if it's empty, we have got to log the user in, but mantaining the settings update process active
+			if(empty($access_token)) {
+				
+				$settings = array();
+				$settingsToCheck = array(
+					"twavatar",
+					"twbio",
+					"twlocation"
+				);
+				
+				// having some fun with variable variables
+				foreach ($settingsToCheck as $setting) {
+					if ($mybb->input[$setting] == 1) {
+						$settings[$setting] = 1;
+					} else {
+						$settings[$setting] = 0;
+					}
+					// building the extra data passed to the redirect url of the login function
+					$loginUrlExtra .= "&{$setting}=" . $settings[$setting];
 				}
-				// building the extra data passed to the redirect url of the login function
-				$loginUrlExtra .= "&{$setting}=" . $settings[$setting];
+				
+				$url = "/usercp.php?action=mytwconnect".$loginUrlExtra;
+				session_start();
+				// used for maintaining the settings update process active
+				$_SESSION['tw_isloggingin'] = true;
+				// log the user in
+				mytwconnect_login($url);
 			}
-			
-			$url = "/usercp.php?action=mytwconnect".$loginUrlExtra;
-			session_start();
-			$_SESSION['tw_islogginin'] = true;
-			mytwconnect_login($url);
 		}
 		
 		// Create our application instance
@@ -351,7 +357,7 @@ function mytwconnect_usercp()
 		add_breadcrumb($lang->mytwconnect_page_title, 'usercp.php?action=mytwconnect');
 				
 		// 2 situations provided: the user is logged in with Twitter, two user isn't logged in with Twitter but it's loggin in.
-		if ($mybb->request_method == 'post' OR $_SESSION['tw_islogginin']) {
+		if ($mybb->request_method == 'post' OR $_SESSION['tw_isloggingin']) {
 						
 			if($mybb->request_method == 'post') {
 				verify_post_check($mybb->input['my_post_key']);
@@ -379,8 +385,9 @@ function mytwconnect_usercp()
 				// oh yeah, let's sync!
 				mytwconnect_sync($newUser);
 				
+				// unset tw_isloggingin, we don't need it anymore
 				session_start();
-				unset($_SESSION['tw_islogginin']);
+				unset($_SESSION['tw_isloggingin']);
 				
 				// inline success support
 				if (function_exists(inline_success)) {
@@ -573,6 +580,7 @@ function mytwconnect_login($url)
 		} else {
 			// skip slow auth if it's valid
 			header("Location: ".$mybb->settings['bburl'].$url);
+			exit;
 		}
 	}
 	
@@ -593,7 +601,8 @@ function mytwconnect_login($url)
   		case 200:
     		// Build authorize URL and redirect user to Twitter.
     		$url = $Twitter->getAuthorizeURL($token);
-    		header('Location: ' . $url); 
+    		header('Location: ' . $url);
+			exit;
     	break;
   		default:
     		// Show notification if something went wrong
