@@ -268,6 +268,8 @@ function mytwconnect_usercp()
 		$lang->load('mytwconnect');
 	}
 	
+	session_start();
+	
 	if ($mybb->input['action'] == "do_twlink" OR ($mybb->input['action'] == "mytwconnect" AND $mybb->request_method == "post")) {
 		/* API LOAD */
 		try {
@@ -308,7 +310,6 @@ function mytwconnect_usercp()
 				}
 				
 				$url = "/usercp.php?action=mytwconnect".$loginUrlExtra;
-				session_start();
 				// used for maintaining the settings update process active
 				$_SESSION['tw_isloggingin'] = true;
 				// log the user in
