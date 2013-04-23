@@ -9,7 +9,7 @@
  * @page Main
  * @author  Shade <legend_k@live.it>
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version beta 2
+ * @version beta 3
  */
 
 define("IN_MYBB", 1);
