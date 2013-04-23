@@ -268,10 +268,8 @@ function mytwconnect_usercp()
 		$lang->load('mytwconnect');
 	}
 	
-	if ($mybb->input['action'] == ("twlink" OR "do_twlink" OR "mytwconnect")) {
+	if ($mybb->input['action'] == "do_twlink" OR $mybb->request_method == "post") {
 		/* API LOAD */
-		
-		// include our API
 		try {
 			include_once MYBB_ROOT . "mytwconnect/src/twitteroauth.php";
 		}
@@ -284,14 +282,35 @@ function mytwconnect_usercp()
 			error($lang->mytwconnect_error_noconfigfound);
 		}
 		
-		// take the access token out of the session, just to beautify it a bit
 		$access_token = $_SESSION['access_token'];
 		
-		// we have no auth here
-		if(empty($access_token) || empty($access_token['oauth_token']) || empty($access_token['oauth_token_secret'])) {
-			error($lang->mytwconnect_error_noauth);
+		if(empty($access_token)) {
+			
+			$settings = array();
+			$settingsToCheck = array(
+				"twavatar",
+				"twbio",
+				"twlocation"
+			);
+			
+			// having some fun with variable variables
+			foreach ($settingsToCheck as $setting) {
+				if ($mybb->input[$setting] == 1) {
+					$settings[$setting] = 1;
+				} else {
+					$settings[$setting] = 0;
+				}
+				// building the extra data passed to the redirect url of the login function
+				$loginUrlExtra .= "&{$setting}=" . $settings[$setting];
+			}
+			
+			$url = "/usercp.php?action=mytwconnect".$loginUrlExtra;
+			session_start();
+			$_SESSION['tw_islogginin'] = true;
+			mytwconnect_login($url);
 		}
 		
+		// Create our application instance
 		$Twitter = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $access_token['oauth_token'], $access_token['oauth_token_secret']);
 		/* END API LOAD */
 	}
@@ -330,11 +349,11 @@ function mytwconnect_usercp()
 		
 		add_breadcrumb($lang->nav_usercp, 'usercp.php');
 		add_breadcrumb($lang->mytwconnect_page_title, 'usercp.php?action=mytwconnect');
-		
+				
 		// 2 situations provided: the user is logged in with Twitter, two user isn't logged in with Twitter but it's loggin in.
-		if ($mybb->request_method == 'post') {
-			
-			if ($mybb->request_method == 'post') {
+		if ($mybb->request_method == 'post' OR $_SESSION['tw_islogginin']) {
+						
+			if($mybb->request_method == 'post') {
 				verify_post_check($mybb->input['my_post_key']);
 			}
 			
@@ -352,8 +371,6 @@ function mytwconnect_usercp()
 				} else {
 					$settings[$setting] = 0;
 				}
-				// building the extra data passed to the redirect url of the login function
-				$loginUrlExtra .= "&{$setting}=" . $settings[$setting];
 			}
 			
 			if ($db->update_query('users', $settings, 'uid = ' . (int) $mybb->user['uid'])) {
@@ -361,6 +378,10 @@ function mytwconnect_usercp()
 				$newUser = array_merge($mybb->user, $settings);
 				// oh yeah, let's sync!
 				mytwconnect_sync($newUser);
+				
+				session_start();
+				unset($_SESSION['tw_islogginin']);
+				
 				// inline success support
 				if (function_exists(inline_success)) {
 					$inlinesuccess = inline_success($lang->mytwconnect_success_settingsupdated);
@@ -694,6 +715,8 @@ function mytwconnect_sync($user, $twdata = array(), $bypass = false)
 	
 	global $mybb, $db, $session, $lang, $plugins;
 	
+	session_start();
+	
 	$userData = array();
 	$userfieldsData = array();
 	
@@ -721,6 +744,7 @@ function mytwconnect_sync($user, $twdata = array(), $bypass = false)
 			
 		// we have no auth here
 		if(empty($access_token) || empty($access_token['oauth_token']) || empty($access_token['oauth_token_secret'])) {
+			session_destroy();
 			error($lang->mytwconnect_error_noauth);
 		}
 		
