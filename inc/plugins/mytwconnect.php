@@ -268,7 +268,7 @@ function mytwconnect_usercp()
 		$lang->load('mytwconnect');
 	}
 	
-	if ($mybb->input['action'] == "do_twlink" OR $mybb->request_method == "post") {
+	if ($mybb->input['action'] == "do_twlink" OR ($mybb->input['action'] == "do_twlink" AND $mybb->request_method == "post")) {
 		/* API LOAD */
 		try {
 			include_once MYBB_ROOT . "mytwconnect/src/twitteroauth.php";
