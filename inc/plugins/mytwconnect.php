@@ -283,11 +283,11 @@ function mytwconnect_usercp()
 		if (CONSUMER_KEY === '' OR CONSUMER_SECRET === '') {
 			error($lang->mytwconnect_error_noconfigfound);
 		}
+			
+		$access_token = $_SESSION['access_token'];
 		
 		// if do_twlink, we are certainly sure that the user has an active access token, so just mytwconnect needs it
 		if($mybb->input['action'] == "mytwconnect") {
-			
-			$access_token = $_SESSION['access_token'];
 			// if it's empty, we have got to log the user in, but mantaining the settings update process active
 			if(empty($access_token)) {
 				
