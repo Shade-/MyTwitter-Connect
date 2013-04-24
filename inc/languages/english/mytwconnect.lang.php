@@ -41,3 +41,7 @@ $l['mytwconnect_register_email_placeholder'] = "Specify your email here";
 $l['mytwconnect_success_linked'] = "Your account on this board has been correctly linked to your Twitter's one.";
 $l['mytwconnect_success_settingsupdated'] = "Your Twitter integration related settings have been updated correctly.";
 $l['mytwconnect_success_settingsupdated_title'] = "Settings updated";
+
+// who's online
+$l['mytwconnect_viewing_loggingin'] = "<a href=\"mytwconnect.php?action=twlogin\">Logging in with Twitter</a>";
+$l['mytwconnect_viewing_registering'] = "<a href=\"mytwconnect.php?action=twregister\">Registering with Twitter</a>";
