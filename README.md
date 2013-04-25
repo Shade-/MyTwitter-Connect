@@ -1,7 +1,7 @@
 MyTwitter Connect
 ===============================
 
-> **Current version** beta 3  
+> **Current version** 1.0  
 > **Dependencies** [PluginLibrary][1]  
 > **Author** Shade  
 
@@ -11,8 +11,6 @@ General
 MyTwitter Connect is meant to be the missing bridge between Twitter and MyBB. It lets your users login with their Twitter account, registering if they don't have an account on your board, and linking their Twitter account to their account on your board if they have one already.
 
 It has been built from [MyFacebook Connect][2] code and it's considered its twin plugin.
-
-**MyTwitter Connect is currently in beta testing and shouldn't be installed on live boards, although it's fairly stable.**
 
 The plugin adds 13 settings into your Admin Control Panel which let you specify the Twitter Consumer Key, Twitter Cosnumer Secret, the post-registration usergroup the user will be inserted when registering through Twitter, whether to use fast one-click registrations and other minor settings.
 
