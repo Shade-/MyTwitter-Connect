@@ -835,13 +835,13 @@ function mytwconnect_sync($user, $twdata = array(), $bypass = false)
 	// bio
 	if ((($user['twbio'] AND !empty($twdata['description'])) OR $bypass) AND $mybb->settings['mytwconnect_twbio']) {
 		if ($db->field_exists($bioid, "userfields")) {
-			$userfieldsData[$bioid] = htmlspecialchars_decode(my_substr($twdata['description'], 0, 400, true));
+			$userfieldsData[$bioid] = $db->escape_string(htmlspecialchars_decode(my_substr($twdata['description'], 0, 400, true)));
 		}
 	}
 	// location
 	if ((($user['twlocation'] AND !empty($twdata['location'])) OR $bypass) AND $mybb->settings['mytwconnect_twlocation']) {
 		if ($db->field_exists($locationid, "userfields")) {
-			$userfieldsData[$locationid] = $twdata['location'];
+			$userfieldsData[$locationid] = $db->escape_string($twdata['location']);
 		}
 	}
 	
