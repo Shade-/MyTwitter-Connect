@@ -7,7 +7,7 @@
  * @package MyTwitter Connect
  * @author  Shade <legend_k@live.it>
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 1.0
+ * @version 1.0.1
  */
 
 if (!defined('IN_MYBB')) {
@@ -32,7 +32,7 @@ function mytwconnect_info()
 		'website' => 'https://github.com/Shade-/MyTwitter-Connect',
 		'author' => 'Shade',
 		'authorsite' => 'http://www.idevicelab.net/forum',
-		'version' => '1.0',
+		'version' => '1.0.1',
 		'compatibility' => '16*',
 		'guid' => '4b4ec3336f071cf86b9ec92df02250eb'
 	);
