@@ -1,7 +1,7 @@
 MyTwitter Connect
 ===============================
 
-> **Current version** 1.0  
+> **Current version** 1.0.1  
 > **Dependencies** [PluginLibrary][1]  
 > **Author** Shade  
 
