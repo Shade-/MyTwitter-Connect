@@ -572,7 +572,7 @@ function mytwconnect_login($url)
 	$access_token = $_SESSION['access_token'];
 	
 	// access token found - the user have already authenticated our app, but we aren't sure it's still valid
-	if(isset($access_token)) {
+	if(!empty($access_token)) {
 		// build our Twitter instance
 		$Twitter = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $access_token['oauth_token'], $access_token['oauth_token_secret']);
 		// check for infos
@@ -585,9 +585,7 @@ function mytwconnect_login($url)
 			header("Location: ".$mybb->settings['bburl'].$url);
 			exit;
 		}
-	}
-	
-	if(empty($access_token)) {
+	} else {
 		// the user isn't authenticated yet, build the app instance
 		$Twitter = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
 	}
@@ -605,11 +603,11 @@ function mytwconnect_login($url)
     		// Build authorize URL and redirect user to Twitter.
     		$url = $Twitter->getAuthorizeURL($token);
     		header('Location: ' . $url);
-			exit;
-    	break;
+    		break;
   		default:
     		// Show notification if something went wrong
    			error($lang->mytwconnect_error_cantconnect);
+			break;
 	}
 }
 
@@ -628,7 +626,9 @@ function mytwconnect_register($user = array())
 	require_once MYBB_ROOT . "inc/datahandlers/user.php";
 	$userhandler = new UserDataHandler("insert");
 	
-	$password = random_str(8);
+	$plength = !empty($mybb->settings['minpasswordlength']) ? $mybb->settings['minpasswordlength'] : 8;
+	
+	$password = random_str($plength);
 	// if the email isn't set (coming from One-click registration), create one
 	if(empty($user['email'])) {
 		$email = $user['id']."@".strtolower($mybb->settings['bbname']).".com";
@@ -821,7 +821,7 @@ function mytwconnect_sync($user, $twdata = array(), $bypass = false)
 		}
 	}
 	// cover, if Profile Picture plugin is installed
-	/*if ((($user['twavatar'] AND !empty($twdata['cover']['source'])) OR $bypass) AND $db->field_exists("profilepic", "users")) {
+	if ((($user['twavatar'] AND !empty($twdata['cover']['source'])) OR $bypass) AND $db->field_exists("profilepic", "users")) {
 		$cover = $twdata['cover']['source'];
 		$userData["profilepic"] = str_replace('/s720x720/', '/p851x315/', $cover);
 		$userData["profilepictype"] = "remote";
@@ -831,7 +831,7 @@ function mytwconnect_sync($user, $twdata = array(), $bypass = false)
 		} else {
 			$userData["profilepicdimensions"] = "851|315";
 		}
-	}*/
+	}
 	// bio
 	if ((($user['twbio'] AND !empty($twdata['description'])) OR $bypass) AND $mybb->settings['mytwconnect_twbio']) {
 		if ($db->field_exists($bioid, "userfields")) {
