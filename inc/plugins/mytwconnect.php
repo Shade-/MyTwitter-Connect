@@ -7,7 +7,7 @@
  * @package MyTwitter Connect
  * @author  Shade <legend_k@live.it>
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 if (!defined('IN_MYBB')) {
@@ -32,7 +32,7 @@ function mytwconnect_info()
 		'website' => 'https://github.com/Shade-/MyTwitter-Connect',
 		'author' => 'Shade',
 		'authorsite' => 'http://www.idevicelab.net/forum',
-		'version' => '1.0.1',
+		'version' => '1.0.2',
 		'compatibility' => '16*',
 		'guid' => '4b4ec3336f071cf86b9ec92df02250eb'
 	);
@@ -366,37 +366,50 @@ function mytwconnect_usercp()
 				verify_post_check($mybb->input['my_post_key']);
 			}
 			
-			$settings = array();
-			$settingsToCheck = array(
-				"twavatar",
-				"twbio",
-				"twlocation"
-			);
-			
-			// having some fun with variable variables
-			foreach ($settingsToCheck as $setting) {
-				if ($mybb->input[$setting] == 1) {
-					$settings[$setting] = 1;
-				} else {
-					$settings[$setting] = 0;
-				}
-			}
-			
-			if ($db->update_query('users', $settings, 'uid = ' . (int) $mybb->user['uid'])) {
-				// update on-the-fly that array of data dude!
-				$newUser = array_merge($mybb->user, $settings);
-				// oh yeah, let's sync!
-				mytwconnect_sync($newUser);
-				
-				// unset tw_isloggingin, we don't need it anymore
-				session_start();
-				unset($_SESSION['tw_isloggingin']);
-				
+			// unlinking his TW account... what a pity! :(
+			if ($mybb->input['unlink']) {
+				mytwconnect_unlink();
 				// inline success support
 				if (function_exists(inline_success)) {
-					$inlinesuccess = inline_success($lang->mytwconnect_success_settingsupdated);
+					$inlinesuccess = inline_success($lang->mytwconnect_success_accunlinked);
 				} else {
-					redirect('usercp.php?action=mytwconnect', $lang->mytwconnect_success_settingsupdated, $lang->mytwconnect_success_settingsupdated_title);
+					redirect('usercp.php?action=mytwconnect', $lang->mytwconnect_success_accunlinked, $lang->mytwconnect_success_accunlinked_title);
+				}
+			} else {			
+				$settings = array();
+				$settingsToCheck = array(
+					"twavatar",
+					"twbio",
+					"twlocation"
+				);
+				
+				// having some fun with variable variables
+				foreach ($settingsToCheck as $setting) {
+					if ($mybb->input[$setting] == 1) {
+						$settings[$setting] = 1;
+					} else {
+						$settings[$setting] = 0;
+					}
+				}
+				
+				if ($db->update_query('users', $settings, 'uid = ' . (int) $mybb->user['uid'])) {
+					// update on-the-fly that array of data dude!
+					$newUser = array_merge($mybb->user, $settings);
+					// oh yeah, let's sync!
+					mytwconnect_sync($newUser);
+					
+					// unset tw_isloggingin, we don't need it anymore
+					if(!session_id()) {
+						session_start();
+					}
+					unset($_SESSION['tw_isloggingin']);
+					
+					// inline success support
+					if (function_exists(inline_success)) {
+						$inlinesuccess = inline_success($lang->mytwconnect_success_settingsupdated);
+					} else {
+						redirect('usercp.php?action=mytwconnect', $lang->mytwconnect_success_settingsupdated, $lang->mytwconnect_success_settingsupdated_title);
+					}
 				}
 			}
 		}
@@ -409,6 +422,7 @@ function mytwconnect_usercp()
 		if ($alreadyThere) {
 			
 			$text = $lang->mytwconnect_settings_whattosync;
+			$unlink = "<input type=\"submit\" class=\"button\" name=\"unlink\" value=\"{$lang->mytwconnect_settings_unlink}\" />";
 			// checking if we want to sync that stuff
 			$settingsToCheck = array(
 				"twbio",
@@ -473,9 +487,24 @@ function mytwconnect_run($userdata, $justlink = false)
 		$registered = $db->fetch_array($query);
 	}
 	
+	if($registered OR $justlink) {
+		// add the user to the twitter group, if any is provided
+		if($mybb->settings['mytwconnect_usergroup']) {
+			$groups = explode(",", $mybb->user['additionalgroups']);
+			$toadd = (int) $mybb->settings['mytwconnect_usergroup'];
+			if(!in_array($toadd, $groups)) {
+				$groups[] = $toadd;
+				$param = array(
+					"additionalgroups" => implode(",", array_filter($groups))
+				);
+				$db->update_query("users", $param, "uid = {$mybb->user['uid']}");
+			}
+		}
+	}
+	
 	// this user hasn't a linked-to-Twitter account yet
 	if (!$registered OR $justlink) {
-		// just link, coming from UCP
+		
 		if ($justlink) {
 			$db->update_query("users", array(
 				"mytw_uid" => $user['id']
@@ -539,6 +568,41 @@ function mytwconnect_run($userdata, $justlink = false)
 			$redirect_url = "index.php";
 		}
 		redirect($redirect_url, $lang->mytwconnect_redirect_loggedin, $lang->sprintf($lang->mytwconnect_redirect_title, $registered['username']));
+	}
+	
+}
+
+/**
+ * Unlink any Twitter account from the corresponding MyBB account.
+ * 
+ * @param int The UID of the user you want to unlink.
+ * @return boolean True if successful, false if unsuccessful.
+ **/
+
+function mytwconnect_unlink()
+{
+	
+	global $db, $mybb;
+	
+	$reset = array(
+		"mytw_uid" => 0
+	);
+	
+	// unlink the account
+	$db->update_query("users", $reset, "uid = {$mybb->user['uid']}");
+	// remove the additional group
+	
+	$groups = explode(",", $mybb->user['additionalgroups']);
+	// we should not rely on the admin's input
+	$todelete = (int) $mybb->settings['mytwconnect_usergroup'];
+	if(in_array($todelete, $groups)) {
+		$groups = array_flip($groups);
+		unset($groups[$todelete]);
+		$groups = array_filter(array_flip($groups));
+		$reset = array(
+			"additionalgroups" => implode(",", $groups)
+		);
+		$db->update_query("users", $reset, "uid = {$mybb->user['uid']}");
 	}
 	
 }
@@ -985,4 +1049,60 @@ function mytwconnect_debug($data)
 	echo var_dump($data);
 	echo "</pre>";
 	exit;
+}
+
+/********************************************************************************************************
+ *
+ * ON-THE-FLY UPGRADING SYSTEM: used to upgrade from any older version to any newer version of the plugin
+ *
+ ********************************************************************************************************/
+
+if ($mybb->settings['mytwconnect_enabled']) {
+	$plugins->add_hook("admin_page_output_header", "mytwconnect_upgrader");
+}
+
+function mytwconnect_upgrader()
+{
+	
+	global $db, $mybb, $cache, $lang;
+	
+	if (!$lang->mytwconnect) {
+		$lang->load("mytwconnect");
+	}
+	
+	// let's see what version of MyTwitter Connect is currently installed on this board
+	$info = mytwconnect_info();
+	$shadePlugins = $cache->read('shade_plugins');
+	$oldversion = $shadePlugins[$info['name']]['version'];
+	$currentversion = $info['version'];
+	
+	// you need to update buddy!
+	if (version_compare($oldversion, $currentversion, "<")) {
+		flash_message($lang->mytwconnect_error_needtoupdate, "error");
+	}
+	
+	// you are updating, that's nice!
+	if ($mybb->input['upgrade'] == "mytwconnect") {
+		// but let's check if you should upgrade first
+		if (version_compare($oldversion, $currentversion, "<")) {
+			// yeah you should
+			// to 1.0.2
+			if (version_compare($oldversion, "1.0.2", "<")) {
+				require_once MYBB_ROOT . "inc/adminfunctions_templates.php";
+				find_replace_templatesets('myfbconnect_usercp_settings', '#' . preg_quote('<input type="submit" value="{$lang->mytwconnect_settings_save}" />') . '#i', '<input type="submit" class=\"button\" value="{$lang->mytwconnect_settings_save}" />{$unlink}');
+			}
+			// update version n° and return a success message
+			$shadePlugins[$info['name']] = array(
+				'title' => $info['name'],
+				'version' => $currentversion
+			);
+			$cache->update('shade_plugins', $shadePlugins);
+			flash_message($lang->sprintf($lang->mytwconnect_success_updated, $oldversion, $currentversion), "success");
+			admin_redirect($_SERVER['HTTP_REFERER']);
+		} else {
+			// you shouldn't
+			flash_message($lang->mytwconnect_error_nothingtodohere, "error");
+			admin_redirect("index.php");
+		}
+	}
 }
