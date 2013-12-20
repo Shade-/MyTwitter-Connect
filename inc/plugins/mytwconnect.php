@@ -264,7 +264,7 @@ function mytwconnect_usercp_menu()
 function mytwconnect_usercp()
 {
 	
-	global $mybb, $lang;
+	global $mybb, $lang, $inlinesuccess;
 	
 	if (!$lang->mytwconnect) {
 		$lang->load('mytwconnect');
@@ -343,13 +343,7 @@ function mytwconnect_usercp()
 		$userdata['id'] = $user['id'];
 		// true means only link
 		mytwconnect_run($userdata, true);
-		// inline success support
-		if (function_exists(inline_success)) {
-			$inlinesuccess = inline_success($lang->mytwconnect_success_linked);
-			$mybb->input['action'] = "mytwconnect";
-		} else {
-			redirect("usercp.php?action=mytwconnect", $lang->mytwconnect_success_linked);
-		}
+		redirect("usercp.php?action=mytwconnect", $lang->mytwconnect_success_linked);
 	}
 	
 	// settings page
@@ -369,12 +363,7 @@ function mytwconnect_usercp()
 			// unlinking his TW account... what a pity! :(
 			if ($mybb->input['unlink']) {
 				mytwconnect_unlink();
-				// inline success support
-				if (function_exists(inline_success)) {
-					$inlinesuccess = inline_success($lang->mytwconnect_success_accunlinked);
-				} else {
-					redirect('usercp.php?action=mytwconnect', $lang->mytwconnect_success_accunlinked, $lang->mytwconnect_success_accunlinked_title);
-				}
+				redirect('usercp.php?action=mytwconnect', $lang->mytwconnect_success_accunlinked, $lang->mytwconnect_success_accunlinked_title);
 			} else {			
 				$settings = array();
 				$settingsToCheck = array(
@@ -403,13 +392,7 @@ function mytwconnect_usercp()
 						session_start();
 					}
 					unset($_SESSION['tw_isloggingin']);
-					
-					// inline success support
-					if (function_exists(inline_success)) {
-						$inlinesuccess = inline_success($lang->mytwconnect_success_settingsupdated);
-					} else {
-						redirect('usercp.php?action=mytwconnect', $lang->mytwconnect_success_settingsupdated, $lang->mytwconnect_success_settingsupdated_title);
-					}
+					redirect('usercp.php?action=mytwconnect', $lang->mytwconnect_success_settingsupdated, $lang->mytwconnect_success_settingsupdated_title);
 				}
 			}
 		}
