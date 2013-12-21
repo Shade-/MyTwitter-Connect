@@ -270,7 +270,9 @@ function mytwconnect_usercp()
 		$lang->load('mytwconnect');
 	}
 	
-	session_start();
+	if(!session_id()) {
+		session_start();
+	}
 	
 	if ($mybb->input['action'] == "do_twlink" OR ($mybb->input['action'] == "mytwconnect" AND $mybb->request_method == "post")) {
 		/* API LOAD */
@@ -614,7 +616,9 @@ function mytwconnect_login($url)
 		error($lang->mytwconnect_error_noconfigfound);
 	}
 	
-	session_start();
+	if(!session_id()) {
+		session_start();
+	}
 	
 	$access_token = $_SESSION['access_token'];
 	
@@ -779,7 +783,9 @@ function mytwconnect_sync($user, $twdata = array(), $bypass = false)
 	
 	global $mybb, $db, $session, $lang, $plugins;
 	
-	session_start();
+	if(!session_id()) {
+		session_start();
+	}
 	
 	$userData = array();
 	$userfieldsData = array();
