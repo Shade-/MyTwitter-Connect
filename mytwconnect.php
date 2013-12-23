@@ -29,7 +29,9 @@ if (!$mybb->settings['mytwconnect_enabled']) {
 	exit;
 }
 
-session_start();
+if(!session_id()) {
+	session_start();
+}
 
 /* API LOAD */
 try {
@@ -86,7 +88,6 @@ if ($mybb->input['action'] == "authenticate") {
 	
 	// auth token present, but invalid (prevents CSRF attacks)
 	if (isset($_REQUEST['oauth_token']) && $_SESSION['oauth_token'] !== $_REQUEST['oauth_token']) {
-		session_destroy();
 		error($lang->mytwconnect_error_noauth);
 	}
 	
@@ -95,8 +96,7 @@ if ($mybb->input['action'] == "authenticate") {
 	$access_token = $Twitter->getAccessToken($_REQUEST['oauth_verifier']);
 	$_SESSION['access_token'] = $access_token;
 	
-	unset($_SESSION['oauth_token']);
-	unset($_SESSION['oauth_token_secret']);
+	unset($_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
 	
 	if ($Twitter->http_code == 200) {
 		// The user has been verified
@@ -121,7 +121,6 @@ if ($mybb->input['action'] == "twregister") {
 	
 	// we have no auth here
 	if(empty($_SESSION['access_token']) || empty($_SESSION['access_token']['oauth_token']) || empty($_SESSION['access_token']['oauth_token_secret'])) {
-		session_destroy();
 		error($lang->mytwconnect_error_noauth);
 	}
 	
@@ -154,10 +153,11 @@ if ($mybb->input['action'] == "twregister") {
 		$newUserData = mytwconnect_register($newuser);
 		
 		// insert options and extra data
-		if ($db->update_query('users', $settingsToAdd, 'uid = ' . (int) $newUserData['uid']) AND !($newUserData['error'])) {
-			// update on-the-fly that array of data dude!
+		if (!$newUserData['error']) {
+		
+			$db->update_query('users', $settingsToAdd, 'uid = ' . (int) $newUserData['uid']);
+			// update on-the-fly that array of data
 			$newUser = array_merge($newUserData, $settingsToAdd);
-			// oh yeah, let's sync!
 			mytwconnect_sync($newUser, $userdata);
 			
 			// login the user normally, and we have finished.	
@@ -172,18 +172,14 @@ if ($mybb->input['action'] == "twregister") {
 			my_setcookie("sid", $session->sid, -1, true);
 			// redirect the user to where he came from
 			if ($mybb->input['redUrl'] AND strpos($mybb->input['redUrl'], "action=twlogin") === false AND strpos($mybb->input['redUrl'], "action=twregister") === false) {
-				$redirect_url = htmlentities($mybb->input['redUrl']);
+				$redirect_url = htmlspecialchars_uni($mybb->input['redUrl']);
 			} else {
 				$redirect_url = "index.php";
 			}
 			redirect($redirect_url, $lang->mytwconnect_redirect_registered, $lang->sprintf($lang->mytwconnect_redirect_title, $newUserData['username']));
 		} else {
-			$errors = $newUserData['data'];
+			$errors = inline_error($newUserData['data']);
 		}
-	}
-	
-	if ($errors) {
-		$errors = inline_error($errors);
 	}
 	
 	$options = "";
@@ -206,7 +202,6 @@ if ($mybb->input['action'] == "twregister") {
 	}
 	
 	foreach ($settingsToBuild as $setting) {
-		// variable variables. Yay!
 		$tempKey = 'mytwconnect_settings_' . $setting;
 		$checked = " checked=\"checked\"";
 		$label = $lang->$tempKey;

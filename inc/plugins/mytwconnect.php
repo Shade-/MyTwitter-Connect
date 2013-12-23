@@ -174,8 +174,6 @@ function mytwconnect_install()
 	
 	find_replace_templatesets('header_welcomeblock_guest', '#' . preg_quote('{$lang->welcome_register}</a>') . '#i', '{$lang->welcome_register}</a> &mdash; <a href="{$mybb->settings[\'bburl\']}/mytwconnect.php?action=twlogin">{$lang->mytwconnect_login}</a>');
 	
-	rebuild_settings();
-	
 }
 
 function mytwconnect_uninstall()
@@ -209,9 +207,6 @@ function mytwconnect_uninstall()
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 	
 	find_replace_templatesets('header_welcomeblock_guest', '#' . preg_quote('&mdash; <a href="{$mybb->settings[\'bburl\']}/mytwconnect.php?action=twlogin">{$lang->mytwconnect_login}</a>') . '#i', '');
-	
-	// rebuild settings
-	rebuild_settings();
 }
 
 if ($settings['mytwconnect_enabled']) {
@@ -274,7 +269,7 @@ function mytwconnect_usercp()
 		session_start();
 	}
 	
-	if ($mybb->input['action'] == "do_twlink" OR ($mybb->input['action'] == "mytwconnect" AND $mybb->request_method == "post")) {
+	if ($mybb->input['action'] == 'do_twlink' OR ($mybb->input['action'] == "mytwconnect" AND $mybb->request_method == "post")) {
 		/* API LOAD */
 		try {
 			include_once MYBB_ROOT . "mytwconnect/src/twitteroauth.php";
