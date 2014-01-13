@@ -68,7 +68,7 @@ if ($mybb->input['action'] == 'do_login') {
 		
 		if ($process['error']) {
 			$errors = $process['error'];
-			$mybb->input['action'] = "twregister";
+			$mybb->input['action'] = 'register';
 		}
 	}
 }
