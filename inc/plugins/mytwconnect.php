@@ -294,12 +294,20 @@ function mytwconnect_global()
 
 function mytwconnect_logout()
 {
+	global $mybb;
+	
 	if (!session_id()) {
 		session_start();
 	}
 	
-	if ($_SESSION['access_token']) {
-		unset($_SESSION['access_token']);
+	// Construct the security_key from scratch; requiring the Twitter API here doesn't make much sense.
+	if ($mybb->settings['mytwconnect_conskey'] and $mybb->settings['mytwconnect_conssecret']) {
+		$security_key = md5($mybb->settings['mytwconnect_conskey'].$mybb->settings['mytwconnect_conssecret']);
+	}
+	
+	// Here we destruct our token. The user must authenticate again the next time (so if he logged out from Twitter he would be asked to log in again)
+	if ($security_key and $_SESSION[$security_key]['access_token']) {
+		unset($_SESSION[$security_key]['access_token']);
 	}
 }
 

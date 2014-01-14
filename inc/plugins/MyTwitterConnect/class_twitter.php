@@ -11,8 +11,17 @@ class MyTwitter
 {
 	// The fallback URL where Twitter redirects users
 	private $fallback = '';
+	
+	// The consumer key populated upon initialization
 	private $key = '';
+	
+	// The consumer secret populated upon initialization
 	private $secret = '';
+	
+	// md5 sumcheck of concatenated $key and $secret to enhance security across multiple boards (prevents logging in other boards provided access within another)
+	private $security_key = '';
+	
+	// A boolean simple token to know when an user is authenticated or not. Can be used by third party plugins.
 	public $authenticated = '';
 	
 	// The $twitter object populated upon initialization
@@ -36,6 +45,8 @@ class MyTwitter
 			$lang->load('mytwconnect');
 		}
 		
+		$this->security_key = md5($this->key.$this->secret);
+		
 		$this->load_api();
 		$this->set_fallback();
 	}
@@ -51,15 +62,15 @@ class MyTwitter
 			return false;
 		}
 		
+		if (!$this->key or !$this->secret) {
+			error($lang->mytwconnect_error_noconfigfound);
+		}
+		
 		try {
 			require_once MYBB_ROOT . "mytwconnect/src/twitteroauth.php";
 		}
 		catch (Exception $e) {
 			error($lang->sprintf($lang->mytwconnect_error_report, $e->getMessage()));
-		}
-		
-		if (!$this->key or !$this->secret) {
-			error($lang->mytwconnect_error_noconfigfound);
 		}
 		
 		// Create our application instance
@@ -75,14 +86,14 @@ class MyTwitter
 	{
 		global $mybb;
 		
-		if ($type == 'authenticated' or $_SESSION['access_token']['oauth_token']) {
+		if ($type == 'authenticated' or $_SESSION[$this->security_key]['access_token']['oauth_token']) {
 		
-			$this->twitter = new TwitterOAuth($this->key, $this->secret, $_SESSION['access_token']['oauth_token'], $_SESSION['access_token']['oauth_token_secret']);
+			$this->twitter = new TwitterOAuth($this->key, $this->secret, $_SESSION[$this->security_key]['access_token']['oauth_token'], $_SESSION[$this->security_key]['access_token']['oauth_token_secret']);
 			$this->authenticated = true;
 			
 		}
-		else if ($type == 'temporary' or $_SESSION['temporary']['oauth_token']) {
-			$this->twitter = new TwitterOAuth($this->key, $this->secret, $_SESSION['temporary']['oauth_token'], $_SESSION['temporary']['oauth_token_secret']);			
+		else if ($type == 'temporary' or $_SESSION[$this->security_key]['temporary']['oauth_token']) {
+			$this->twitter = new TwitterOAuth($this->key, $this->secret, $_SESSION[$this->security_key]['temporary']['oauth_token'], $_SESSION[$this->security_key]['temporary']['oauth_token_secret']);			
 		}
 		else {
 			$this->twitter = new TwitterOAuth($this->key, $this->secret);
@@ -125,7 +136,7 @@ class MyTwitter
 		// Get a temporary pair of tokens
 		$token = $this->twitter->getRequestToken($this->fallback);
 		
-		$_SESSION['temporary'] = array(
+		$_SESSION[$this->security_key]['temporary'] = array(
 			'oauth_token' => $token['oauth_token'],
 			'oauth_token_secret' => $token['oauth_token_secret']
 		);
@@ -154,16 +165,16 @@ class MyTwitter
 		}
 		
 		// Mitigate CSRF after authentication
-		if ($_REQUEST['oauth_token'] and $_SESSION['temporary']['oauth_token'] !== $_REQUEST['oauth_token']) {
+		if ($_REQUEST['oauth_token'] and $_SESSION[$this->security_key]['temporary']['oauth_token'] !== $_REQUEST['oauth_token']) {
 			error($lang->mytwconnect_error_noauth);
 		}
 		
 		// Load the temporary Twitter object
 		$this->load_object('temporary');
 		
-		$_SESSION['access_token'] = $this->twitter->getAccessToken($_REQUEST['oauth_verifier']);
+		$_SESSION[$this->security_key]['access_token'] = $this->twitter->getAccessToken($_REQUEST['oauth_verifier']);
 		
-		unset($_SESSION['temporary']);
+		unset($_SESSION[$this->security_key]['temporary']);
 		
 		if ($this->twitter->http_code != 200) {
 			error($lang->mytwconnect_error_noauth);
@@ -194,7 +205,7 @@ class MyTwitter
 		}
 		
 		// At this point we must unset the tokens, they are not useful anymore
-		unset($_SESSION['access_token'], $this->authenticated);
+		unset($_SESSION[$this->security_key]['access_token'], $this->authenticated);
 		
 		$this->load_object();
 		
@@ -451,7 +462,7 @@ class MyTwitter
 		}
 		
 		// Unset the tokens to ask for login again (multiple account support)
-		unset($_SESSION['access_token']);
+		unset($_SESSION[$this->security_key]['access_token']);
 		
 		return true;
 	}

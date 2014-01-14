@@ -36,11 +36,11 @@ $l['setting_mytwconnect_twavatar'] = "Sync avatar";
 $l['setting_mytwconnect_twavatar_desc'] = "If you would like to import the avatar from Twitter (and let users decide to sync it) enable this option.";
 $l['setting_mytwconnect_twlocation'] = "Sync location";
 $l['setting_mytwconnect_twlocation_desc'] = "If you would like to import Location from Twitter (and let users decide to sync it) enable this option.";
-$l['setting_mytwconnect_twlocationfield'] = "Location Custom Profile Field ID";
+$l['setting_mytwconnect_twlocationfield'] = "Location Custom Profile Field";
 $l['setting_mytwconnect_twlocationfield_desc'] = "Select the Custom Profile Field that will be filled with Twitter's location.";
 $l['setting_mytwconnect_twbio'] = "Sync biography";
 $l['setting_mytwconnect_twbio_desc'] = "If you would like to import Biography from Twitter (and let users decide to sync it) enable this option.";
-$l['setting_mytwconnect_twbiofield'] = "Biography Custom Profile Field ID";
+$l['setting_mytwconnect_twbiofield'] = "Biography Custom Profile Field";
 $l['setting_mytwconnect_twbiofield_desc'] = "Select the Custom Profile Field that will be filled with Twitter's biography.";
 
 // Default pm text
