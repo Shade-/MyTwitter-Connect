@@ -263,7 +263,7 @@ if ($settings['mytwconnect_enabled']) {
 function mytwconnect_global()
 {
 	
-	global $mybb, $templatelist;
+	global $mybb, $lang, $templatelist;
 	
 	if ($templatelist) {
 		$templatelist = explode(',', $templatelist);
@@ -289,6 +289,8 @@ function mytwconnect_global()
 	}
 	
 	$templatelist = implode(',', array_filter($templatelist));
+	
+	$lang->load('mytwconnect');
 	
 }
 
