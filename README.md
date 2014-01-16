@@ -1,41 +1,21 @@
-MyTwitter Connect
-===============================
+## MyTwitter Connect
 
-> **Current version** 1.0.1  
-> **Dependencies** [PluginLibrary][1]  
+MyTwitter Connect is the ultimate solution for MyBB <-> Twitter bridging, featuring smooth login and registration.
+
+> **Version** 2.0  
+> **Dependencies** [PluginLibrary](http://mods.mybb.com/view/PluginLibrary), PHP cURL  
 > **Author** Shade  
 
-General
--------
+### Info
 
-MyTwitter Connect is meant to be the missing bridge between Twitter and MyBB. It lets your users login with their Twitter account, registering if they don't have an account on your board, and linking their Twitter account to their account on your board if they have one already.
+MyTwitter Connect lets you and your users register and login with Twitter on your MyBB forum with an high quality and lightweight solution.
 
-It has been built from [MyFacebook Connect][2] code and it's considered its twin plugin.
+Existing users can link their accounts to Twitter in order to use the login functionality without having to create a fresh new account. Users and admins can also decide what informations should be imported ("synced") with their Twitter account every time they log in.
 
-The plugin adds 13 settings into your Admin Control Panel which let you specify the Twitter Consumer Key, Twitter Cosnumer Secret, the post-registration usergroup the user will be inserted when registering through Twitter, whether to use fast one-click registrations and other minor settings.
+Many options are available, including an option to tweet a customizable message on the user's timeline when he registers or links his account with Twitter.
 
-MyTwitter Connect currently comes with the following feature list:
+### Documentation
 
-* Connect any user to your MyBB installation with Twitter
-* One-click login
-* One-click registration if setting "Fast registration" is enabled, else the user will be asked for a new username, a new email and data syncing permissions
-* Automatically synchronizes Twitter account data with MyBB account, including avatar, cover (if Profile Pictures plugin is installed), location and biography
-* Already-registered users can link to their Twitter account manually from within their User Control Panel
-* Twitter-linked users can choose what data to import from their Twitter from within their User Control Panel
-* Works for all MyBB 1.6 installations and web servers thanks to the TwitterOAuth library provided
-* You can set a post-registration usergroup to insert the Twitter-registered users, meaning a smoother user experience
-* You can notify a newly registered user with a PM containing his randomly generated password. You have full control on the subject, the sender and the message of the PM that you can edit from your Admin Control Panel
-* You have full control over synchronized data. You can choose what data to let your users sync with their Twitter accounts by simply enabling the settings into the Admin Control Panel
-* Redirects logged in/registered users to the same page they came from
-* *It works*
-* *It's free*
+The official documentation can be found [here](http://github.com/Shade-/MyTwitter-Connect/wiki).
 
-Future updates
--------------
-
-Would you like to see a feature developed for MyTwitter Connect? No problem, just open a new Issue here on GitHub and I'll do my best to accomplish your request!
-
-It is based upon TwitterOAuth Library with Twitter REST API 1.1. It is free as in freedom.
-
-[1]: http://mods.mybb.com/view/PluginLibrary
-[2]: http://github.com/Shade-/MyFacebook-Connect
+MyTwitter Connect is based upon Twitter REST API 1.1 and it's free as in freedom.

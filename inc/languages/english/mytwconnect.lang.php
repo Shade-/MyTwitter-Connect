@@ -17,10 +17,10 @@ $l['mytwconnect_error_report'] = "An unknown error with the remote Twitter API s
 {1}
 
 If you don't know what it means, report it to an administrator.";
-$l['mytwconnect_error_unknown'] = "An unknown error occured using MyTwitter Connect.";
+$l['mytwconnect_error_unknown'] = "An unknown error occurred using MyTwitter Connect.";
 
 // usercp
-$l['mytwconnect_settings_title'] = "Twitter integration";
+$l['mytwconnect_settings_title'] = $l['mytwconnect_page_title'] = "Twitter integration";
 $l['mytwconnect_settings_save'] = "Save";
 $l['mytwconnect_settings_twavatar'] = "Avatar and cover";
 $l['mytwconnect_settings_twbio'] = "Bio";
@@ -28,7 +28,8 @@ $l['mytwconnect_settings_twlocation'] = "Location";
 $l['mytwconnect_link'] = "Click here to link your account with your Twitter's one";
 $l['mytwconnect_settings_whattosync'] = "Select what info we should import from your Twitter. We'll immediately synchronize your desired data on-the-fly while updating the settings, adding what should be added (but not removing what should be removed - that's up to you!).";
 $l['mytwconnect_settings_linkaccount'] = "Hit the button on your right to link your Twitter account with the one on this board.";
-$l['mytwconnect_settings_unlink'] = "Unlink";
+$l['mytwconnect_settings_unlink'] = "Unlink my account";
+$l['mytwconnect_settings_connected'] = "Your Twitter account is currently linked to the account on this board. Click on the button below to unlink.";
 
 // registration
 $l['mytwconnect_register_title'] = "Twitter registration";
@@ -44,7 +45,7 @@ $l['mytwconnect_success_linked'] = "Your MyBB account has been successfully link
 $l['mytwconnect_success_settingsupdated'] = "Your Twitter integration related settings have been updated correctly.";
 $l['mytwconnect_success_settingsupdated_title'] = "Settings updated";
 $l['mytwconnect_success_accunlinked_title'] = "Account unlinked";
-$l['mytwconnect_success_accunlinked'] = "Your MyBB account has been successfully unlinked from your Twitter one.";
+$l['mytwconnect_success_accunlinked'] = "Your Twitter account has been unlinked successfully from your MyBB's one.";
 
 // who's online
 $l['mytwconnect_viewing_loggingin'] = "<a href=\"mytwconnect.php?action=twlogin\">Logging in with Twitter</a>";
