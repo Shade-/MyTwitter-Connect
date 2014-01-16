@@ -189,7 +189,7 @@ function mytwconnect_install()
 	
 	// Try to update templates
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
-	find_replace_templatesets('header_welcomeblock_guest', '#' . preg_quote('{$lang->welcome_register}</a>') . '#i', '{$lang->welcome_register}</a> &mdash; <a href="{$mybb->settings[\'bburl\']}/mytwconnect.php?action=twlogin">{$lang->mytwconnect_login}</a>');
+	find_replace_templatesets('header_welcomeblock_guest', '#' . preg_quote('{$lang->welcome_register}</a>') . '#i', '{$lang->welcome_register}</a> &mdash; <a href="{$mybb->settings[\'bburl\']}/mytwconnect.php?action=login">{$lang->mytwconnect_login}</a>');
 	
 }
 
@@ -224,7 +224,7 @@ function mytwconnect_uninstall()
 	
 	// Try to update templates
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
-	find_replace_templatesets('header_welcomeblock_guest', '#' . preg_quote('&mdash; <a href="{$mybb->settings[\'bburl\']}/mytwconnect.php?action=twlogin">{$lang->mytwconnect_login}</a>') . '#i', '');
+	find_replace_templatesets('header_welcomeblock_guest', '#' . preg_quote('&mdash; <a href="{$mybb->settings[\'bburl\']}/mytwconnect.php?action=login">{$lang->mytwconnect_login}</a>') . '#i', '');
 	
 }
 
