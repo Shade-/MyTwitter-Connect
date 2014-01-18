@@ -250,8 +250,8 @@ if ($settings['mytwconnect_enabled']) {
 		$plugins->add_hook("admin_page_output_footer", "mytwconnect_settings_footer");
 		
 		// Custom module
-        $plugins->add_hook("admin_config_menu", "mytwconnect_admin_config_menu");
-        $plugins->add_hook("admin_config_action_handler", "mytwconnect_admin_config_action_handler");
+        //$plugins->add_hook("admin_config_menu", "mytwconnect_admin_config_menu");
+        //$plugins->add_hook("admin_config_action_handler", "mytwconnect_admin_config_action_handler");
 		
 		// Replace text inputs to select boxes dinamically
 		$plugins->add_hook("admin_config_settings_change", "mytwconnect_settings_saver");
