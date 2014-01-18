@@ -167,7 +167,7 @@ function mytwconnect_install()
 		`mytw_uid` bigint(50) NOT NULL DEFAULT 0
 		)");
 	
-	// Insert our templates	   
+	// Insert our templates
 	$dir = new DirectoryIterator(dirname(__FILE__) . '/MyTwitterConnect/templates');
 	$templates = array();
 	foreach ($dir as $file) {
@@ -249,10 +249,6 @@ if ($settings['mytwconnect_enabled']) {
 		$plugins->add_hook("admin_page_output_header", "mytwconnect_update");
 		$plugins->add_hook("admin_page_output_footer", "mytwconnect_settings_footer");
 		
-		// Custom module
-        //$plugins->add_hook("admin_config_menu", "mytwconnect_admin_config_menu");
-        //$plugins->add_hook("admin_config_action_handler", "mytwconnect_admin_config_action_handler");
-		
 		// Replace text inputs to select boxes dinamically
 		$plugins->add_hook("admin_config_settings_change", "mytwconnect_settings_saver");
 		$plugins->add_hook("admin_formcontainer_output_row", "mytwconnect_settings_replacer");
@@ -267,6 +263,10 @@ function mytwconnect_global()
 	
 	if ($templatelist) {
 		$templatelist = explode(',', $templatelist);
+	}
+	// Fixes common warnings (due to $templatelist being void)
+	else {
+		$templatelist = array();
 	}
 	
 	if (THIS_SCRIPT == 'mytwconnect.php') {
@@ -429,6 +429,7 @@ function mytwconnect_usercp()
 					$TwitterConnect->authenticate();
 					
 					return;
+					
 				}
 				
 				if ($db->update_query('users', $settings, 'uid = ' . (int) $mybb->user['uid'])) {
@@ -508,13 +509,15 @@ function mytwconnect_update()
 {
 	global $mybb, $db, $cache, $lang;
 	
-	require_once MYBB_ROOT . "inc/plugins/MyTwitterConnect/class_update.php";
+	$file = MYBB_ROOT . "inc/plugins/MyTwitterConnect/class_update.php";
+	
+	if (file_exists($file)) {
+		require_once $file;
+	}
 }
 
 /**
  * Displays peekers in settings.
- * 
- * @return boolean True if successful, false either.
  **/
 
 function mytwconnect_settings_footer()
@@ -549,8 +552,6 @@ function loadStars()
 
 /**
  * Gets the gid of MyTwitter Connect settings group.
- * 
- * @return mixed The gid.
  **/
 
 function mytwconnect_settings_gid()
@@ -697,25 +698,4 @@ function mytwconnect_settings_replacer($args)
 		$args['content'] = $form->generate_group_select($tempKey."_select", array($mybb->settings[$tempKey]));
 			
 	}
-}
-
-function mytwconnect_admin_config_menu($sub_menu)
-{
-        global $lang;
-
-        $lang->load("mytwconnect");
-
-        $sub_menu[] = array("id" => "mytwconnect", "title" => $lang->mytwconnect, "link" => "index.php?module=config-mytwconnect");
-
-        return $sub_menu;
-}
-
-function mytwconnect_admin_config_action_handler($actions)
-{
-        $actions['mytwconnect'] = array(
-                "active" => "mytwconnect",
-                "file" => "mytwconnect.php"
-        );
-
-        return $actions;
 }
