@@ -121,8 +121,8 @@ if ($mybb->input['action'] == 'register') {
 			$db->update_query('users', $settingsToAdd, 'uid = ' . (int) $user['uid']);
 			
 			// Sync
-			$newUser = array_merge($user, $settingsToAdd);
-			$TwitterConnect->sync($newUser);
+			//$newUser = array_merge($user, $settingsToAdd);
+			$TwitterConnect->sync($newUser, $settingsToAdd);
 			
 			// Login
 			$TwitterConnect->login($user);
