@@ -539,7 +539,7 @@ class MyTwitter
 	/**
 	 * Synchronizes Twitter's data with MyBB's data
 	 */
-	public function sync($user, $data)
+	public function sync($user, $data=array())
 	{
 		if (!$user['uid']) {
 			return false;
@@ -547,7 +547,7 @@ class MyTwitter
 		
 		global $mybb, $db, $session, $lang;
 		
-		$update         = array();
+		$update    = array();
 		$userfield = array();
 		
 		$locationid = "fid" . (int) $mybb->settings['mytwconnect_twlocationfield'];
@@ -558,7 +558,7 @@ class MyTwitter
 			$data = $this->get_user();
 		}
 		
-		$query      = $db->simple_select("userfields", "ufid", "ufid = {$user['uid']}");
+		$query = $db->simple_select("userfields", "ufid", "ufid = {$user['uid']}");
 		$check = $db->fetch_field($query, "ufid");
 		$db->free_result($query);
 		

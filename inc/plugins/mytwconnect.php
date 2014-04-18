@@ -6,7 +6,7 @@
  * @package MyTwitter Connect
  * @author  Shade <legend_k@live.it>
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 2.0
+ * @version 2.0.1
  */
 
 if (!defined('IN_MYBB')) {
@@ -25,7 +25,7 @@ function mytwconnect_info()
 		'website' => 'https://github.com/Shade-/MyTwitter-Connect',
 		'author' => 'Shade',
 		'authorsite' => '',
-		'version' => '2.0',
+		'version' => '2.0.1',
 		'compatibility' => '16*',
 		'guid' => '4b4ec3336f071cf86b9ec92df02250eb'
 	);
@@ -57,103 +57,103 @@ function mytwconnect_install()
 	
 	$PL or require_once PLUGINLIBRARY;
 	
-	$PL->settings('mytwconnect', $lang->mytwconnect_settings, $lang->mytwconnect_settings_desc, array(
+	$PL->settings('mytwconnect', $lang->setting_group_mytwconnect, $lang->setting_group_mytwconnect_desc, array(
 		'enabled' => array(
-			'title' => $lang->mytwconnect_settings_enable,
-			'description' => $lang->mytwconnect_settings_enable_desc,
+			'title' => $lang->setting_mytwconnect_enable,
+			'description' => $lang->setting_mytwconnect_enable_desc,
 			'value' => '1'
 		),
 		'conskey' => array(
-			'title' => $lang->mytwconnect_settings_conskey,
-			'description' => $lang->mytwconnect_settings_conskey_desc,
+			'title' => $lang->setting_mytwconnect_conskey,
+			'description' => $lang->setting_mytwconnect_conskey_desc,
 			'value' => '',
 			'optionscode' => 'text'
 		),
 		'conssecret' => array(
-			'title' => $lang->mytwconnect_settings_conssecret,
-			'description' => $lang->mytwconnect_settings_conssecret_desc,
+			'title' => $lang->setting_mytwconnect_conssecret,
+			'description' => $lang->setting_mytwconnect_conssecret_desc,
 			'value' => '',
 			'optionscode' => 'text'
 		),
 		'fastregistration' => array(
-			'title' => $lang->mytwconnect_settings_fastregistration,
-			'description' => $lang->mytwconnect_settings_fastregistration_desc,
+			'title' => $lang->setting_mytwconnect_fastregistration,
+			'description' => $lang->setting_mytwconnect_fastregistration_desc,
 			'value' => '1'
 		),
 		'usergroup' => array(
-			'title' => $lang->mytwconnect_settings_usergroup,
-			'description' => $lang->mytwconnect_settings_usergroup_desc,
+			'title' => $lang->setting_mytwconnect_usergroup,
+			'description' => $lang->setting_mytwconnect_usergroup_desc,
 			'value' => '2',
 			'optionscode' => 'text'
 		),
 		
 		// PM delivery
 		'passwordpm' => array(
-			'title' => $lang->mytwconnect_settings_passwordpm,
-			'description' => $lang->mytwconnect_settings_passwordpm_desc,
+			'title' => $lang->setting_mytwconnect_passwordpm,
+			'description' => $lang->setting_mytwconnect_passwordpm_desc,
 			'value' => '1'
 		),
 		'passwordpm_subject' => array(
-			'title' => $lang->mytwconnect_settings_passwordpm_subject,
-			'description' => $lang->mytwconnect_settings_passwordpm_subject_desc,
+			'title' => $lang->setting_mytwconnect_passwordpm_subject,
+			'description' => $lang->setting_mytwconnect_passwordpm_subject_desc,
 			'optionscode' => 'text',
 			'value' => $lang->mytwconnect_default_passwordpm_subject
 		),
 		'passwordpm_message' => array(
-			'title' => $lang->mytwconnect_settings_passwordpm_message,
-			'description' => $lang->mytwconnect_settings_passwordpm_message_desc,
+			'title' => $lang->setting_mytwconnect_passwordpm_message,
+			'description' => $lang->setting_mytwconnect_passwordpm_message_desc,
 			'optionscode' => 'textarea',
 			'value' => $lang->mytwconnect_default_passwordpm_message
 		),
 		'passwordpm_fromid' => array(
-			'title' => $lang->mytwconnect_settings_passwordpm_fromid,
-			'description' => $lang->mytwconnect_settings_passwordpm_fromid_desc,
+			'title' => $lang->setting_mytwconnect_passwordpm_fromid,
+			'description' => $lang->setting_mytwconnect_passwordpm_fromid_desc,
 			'optionscode' => 'text',
 			'value' => ''
 		),
 		
 		// Avatar
 		'twavatar' => array(
-			'title' => $lang->mytwconnect_settings_twavatar,
-			'description' => $lang->mytwconnect_settings_twavatar_desc,
+			'title' => $lang->setting_mytwconnect_twavatar,
+			'description' => $lang->setting_mytwconnect_twavatar_desc,
 			'value' => '1'
 		),
 		
 		// Location
 		'twlocation' => array(
-			'title' => $lang->mytwconnect_settings_twlocation,
-			'description' => $lang->mytwconnect_settings_twlocation_desc,
+			'title' => $lang->setting_mytwconnect_twlocation,
+			'description' => $lang->setting_mytwconnect_twlocation_desc,
 			'value' => '1'
 		),
 		'twlocationfield' => array(
-			'title' => $lang->mytwconnect_settings_twlocationfield,
-			'description' => $lang->mytwconnect_settings_twlocationfield_desc,
+			'title' => $lang->setting_mytwconnect_twlocationfield,
+			'description' => $lang->setting_mytwconnect_twlocationfield_desc,
 			'optionscode' => 'text',
 			'value' => '1'
 		),
 		
 		// Bio
 		'twbio' => array(
-			'title' => $lang->mytwconnect_settings_twbio,
-			'description' => $lang->mytwconnect_settings_twbio_desc,
+			'title' => $lang->setting_mytwconnect_twbio,
+			'description' => $lang->setting_mytwconnect_twbio_desc,
 			'value' => '1'
 		),
 		'twbiofield' => array(
-			'title' => $lang->mytwconnect_settings_twbiofield,
-			'description' => $lang->mytwconnect_settings_twbiofield_desc,
+			'title' => $lang->setting_mytwconnect_twbiofield,
+			'description' => $lang->setting_mytwconnect_twbiofield_desc,
 			'optionscode' => 'text',
 			'value' => '2'
 		),
 		
 		// Tweet on user's timeline
 		'tweet' => array(
-			'title' => $lang->mytwconnect_settings_tweet,
-			'description' => $lang->mytwconnect_settings_tweet_desc,
+			'title' => $lang->setting_mytwconnect_tweet,
+			'description' => $lang->setting_mytwconnect_tweet_desc,
 			'value' => '0'
 		),
 		'tweet_message' => array(
-			'title' => $lang->mytwconnect_settings_tweet_message,
-			'description' => $lang->mytwconnect_settings_tweet_message_desc,
+			'title' => $lang->setting_mytwconnect_tweet_message,
+			'description' => $lang->setting_mytwconnect_tweet_message_desc,
 			'optionscode' => 'textarea',
 			'value' => $lang->mytwconnect_default_tweet
 		)
@@ -465,8 +465,8 @@ function mytwconnect_usercp()
 				
 			}
 			
-			$text = $lang->mytwconnect_settings_whattosync;
-			$unlink = "<input type=\"submit\" class=\"button\" name=\"unlink\" value=\"{$lang->mytwconnect_settings_unlink}\" />";
+			$text = $lang->setting_mytwconnect_whattosync;
+			$unlink = "<input type=\"submit\" class=\"button\" name=\"unlink\" value=\"{$lang->setting_mytwconnect_unlink}\" />";
 			
 			if ($userSettings) {
 			
@@ -489,13 +489,13 @@ function mytwconnect_usercp()
 				
 			}
 			else {
-				$text = $lang->mytwconnect_settings_connected;
+				$text = $lang->setting_mytwconnect_connected;
 			}
 			
 		}
 		else {
 			
-			$text = $lang->mytwconnect_settings_linkaccount;
+			$text = $lang->setting_mytwconnect_linkaccount;
 			eval("\$options = \"" . $templates->get('mytwconnect_usercp_settings_linkprofile') . "\";");
 			
 		}
