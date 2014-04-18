@@ -67,7 +67,18 @@ if ($mybb->input['action'] == 'do_login') {
 		$process = $TwitterConnect->process($user);
 		
 		if ($process['error']) {
-			$errors = $process['error'];
+			if (is_array($process['error']))
+			{
+			
+				foreach ($process['error'] as $err)
+				{
+					$errors .= $err;
+				}
+			}
+			else 
+			{
+			  $errors = $process['error'];
+			}
 			$mybb->input['action'] = 'register';
 		}
 	}
