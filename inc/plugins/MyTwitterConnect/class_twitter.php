@@ -322,7 +322,7 @@ class MyTwitter
 		$userhandler->set_data($new_user);
 		if ($userhandler->validate_user()) {
 			
-			$user = $userhandler->insert_user();
+			$user_info = $userhandler->insert_user();
 			
 			$plugins->run_hooks("member_do_register_end");
 			
@@ -343,7 +343,7 @@ class MyTwitter
 				$subject = $mybb->settings['mytwconnect_passwordpm_subject'];
 				
 				$thingsToReplace = array(
-					"{user}" => $user['username'],
+					"{user}" => $user_info['username'],
 					"{password}" => $password
 				);
 				
@@ -357,7 +357,7 @@ class MyTwitter
 					"message" => $message,
 					"fromid" => $fromid,
 					"toid" => array(
-						$user['uid']
+						$user_info['uid']
 					)
 				);
 				
@@ -383,7 +383,7 @@ class MyTwitter
 			}
 			
 			// Finally return our new user data
-			return $user;
+			return $user_info;
 			
 		}
 		else {
