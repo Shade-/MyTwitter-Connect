@@ -305,8 +305,7 @@ class MyTwitter
 			"password2" => $password,
 			"email" => $user['email'],
 			"email2" => $user['email'],
-			"usergroup" => $mybb->settings['mytwconnect_usergroup'],
-			"displaygroup" => $mybb->settings['mytwconnect_usergroup'],
+			"usergroup" => (int) $mybb->settings['mytwconnect_usergroup'],
 			"regip" => $session->ipaddress,
 			"longregip" => my_ip2long($session->ipaddress),
 			"options" => array(
@@ -377,7 +376,7 @@ class MyTwitter
 				}
 			}
 			
-			// Post a message on the user's wall
+			// Post a message on the user's timeline
 			if ($mybb->settings['mytwconnect_tweet']) {
 				$this->tweet($mybb->settings['mytwconnect_tweet_message']);
 			}
