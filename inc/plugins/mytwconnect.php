@@ -6,7 +6,7 @@
  * @package MyTwitter Connect
  * @author  Shade <legend_k@live.it>
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 2.0.1
+ * @version 2.1
  */
 
 if (!defined('IN_MYBB')) {
@@ -25,8 +25,8 @@ function mytwconnect_info()
 		'website' => 'https://github.com/Shade-/MyTwitter-Connect',
 		'author' => 'Shade',
 		'authorsite' => '',
-		'version' => '2.0.1',
-		'compatibility' => '16*',
+		'version' => '2.1',
+		'compatibility' => '16*,17*,18*',
 		'guid' => '4b4ec3336f071cf86b9ec92df02250eb'
 	);
 }
@@ -523,29 +523,58 @@ function mytwconnect_update()
 function mytwconnect_settings_footer()
 {
 	global $mybb, $db;
+	
 	if ($mybb->input["action"] == "change" and $mybb->request_method != "post") {
+	
 		$gid = mytwconnect_settings_gid();
+		
 		if ($mybb->input["gid"] == $gid or !$mybb->input['gid']) {
-			echo '<script type="text/javascript">
-Event.observe(window, "load", function() {
-	loadMyTWConnectPeekers();
-	loadStars();
-});
-function loadMyTWConnectPeekers()
-{
-	new Peeker($$(".setting_mytwconnect_passwordpm"), $("row_setting_mytwconnect_passwordpm_subject"), /1/, true);
-	new Peeker($$(".setting_mytwconnect_passwordpm"), $("row_setting_mytwconnect_passwordpm_message"), /1/, true);
-	new Peeker($$(".setting_mytwconnect_passwordpm"), $("row_setting_mytwconnect_passwordpm_fromid"), /1/, true);
-	new Peeker($$(".setting_mytwconnect_twbio"), $("row_setting_mytwconnect_twbiofield"), /1/, true);
-	new Peeker($$(".setting_mytwconnect_twlocation"), $("row_setting_mytwconnect_twlocationfield"), /1/, true);
-	new Peeker($$(".setting_mytwconnect_tweet"), $("row_setting_mytwconnect_tweet_message"), /1/, true);
-}
-function loadStars()
-{
-	add_star("row_setting_mytwconnect_conskey");
-	add_star("row_setting_mytwconnect_conssecret");
-}
-</script>';
+		
+			// 1.8 has jQuery, not Prototype
+			if ($mybb->version_code >= 1700) {
+				echo '<script type="text/javascript">
+	$(document).ready(function() {
+		loadMyTWConnectPeekers();
+		loadStars();
+	});
+	function loadMyTWConnectPeekers()
+	{
+		new Peeker($(".setting_mytwconnect_passwordpm"), $("#row_setting_mytwconnect_passwordpm_subject"), /1/, true);
+		new Peeker($(".setting_mytwconnect_passwordpm"), $("#row_setting_mytwconnect_passwordpm_message"), /1/, true);
+		new Peeker($(".setting_mytwconnect_passwordpm"), $("#row_setting_mytwconnect_passwordpm_fromid"), /1/, true);
+		new Peeker($(".setting_mytwconnect_twbio"), $("#row_setting_mytwconnect_twbiofield"), /1/, true);
+		new Peeker($(".setting_mytwconnect_twlocation"), $("#row_setting_mytwconnect_twlocationfield"), /1/, true);
+		new Peeker($(".setting_mytwconnect_tweet"), $("#row_setting_mytwconnect_tweet_message"), /1/, true);
+	}
+	function loadStars()
+	{
+		add_star("row_setting_myfbconnect_appid");
+		add_star("row_setting_myfbconnect_appsecret");
+	}
+	</script>';
+			}
+			else {
+				echo '<script type="text/javascript">
+	Event.observe(window, "load", function() {
+		loadMyTWConnectPeekers();
+		loadStars();
+	});
+	function loadMyTWConnectPeekers()
+	{
+		new Peeker($$(".setting_mytwconnect_passwordpm"), $("row_setting_mytwconnect_passwordpm_subject"), /1/, true);
+		new Peeker($$(".setting_mytwconnect_passwordpm"), $("row_setting_mytwconnect_passwordpm_message"), /1/, true);
+		new Peeker($$(".setting_mytwconnect_passwordpm"), $("row_setting_mytwconnect_passwordpm_fromid"), /1/, true);
+		new Peeker($$(".setting_mytwconnect_twbio"), $("row_setting_mytwconnect_twbiofield"), /1/, true);
+		new Peeker($$(".setting_mytwconnect_twlocation"), $("row_setting_mytwconnect_twlocationfield"), /1/, true);
+		new Peeker($$(".setting_mytwconnect_tweet"), $("row_setting_mytwconnect_tweet_message"), /1/, true);
+	}
+	function loadStars()
+	{
+		add_star("row_setting_mytwconnect_conskey");
+		add_star("row_setting_mytwconnect_conssecret");
+	}
+	</script>';
+			}
 		}
 	}
 }
