@@ -228,7 +228,9 @@ function mytwconnect_uninstall()
 	
 }
 
-if ($settings['mytwconnect_enabled']) {
+global $mybb;
+
+if ($mybb->settings['mytwconnect_enabled']) {
 	
 	// Global
 	$plugins->add_hook('global_start', 'mytwconnect_global');
