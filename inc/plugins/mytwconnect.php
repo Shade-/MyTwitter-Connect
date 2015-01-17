@@ -468,7 +468,7 @@ function mytwconnect_usercp()
 			}
 			
 			$text = $lang->setting_mytwconnect_whattosync;
-			$unlink = "<input type=\"submit\" class=\"button\" name=\"unlink\" value=\"{$lang->setting_mytwconnect_unlink}\" />";
+			$unlink = "<input type=\"submit\" class=\"button\" name=\"unlink\" value=\"{$lang->mytwconnect_settings_unlink}\" />";
 			
 			if ($userSettings) {
 			
