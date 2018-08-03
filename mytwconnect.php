@@ -6,7 +6,7 @@
 
 define("IN_MYBB", 1);
 define('THIS_SCRIPT', 'mytwconnect.php');
-define('ALLOWABLE_PAGE', 'login,register,do_login');
+define('ALLOWABLE_PAGE', 'login,do_login,register');
 
 require_once "./global.php";
 
@@ -20,7 +20,7 @@ if (!$mybb->settings['mytwconnect_enabled']) {
 }
 
 // Registrations are disabled
-if ($mybb->settings['disableregs'] == 1) {
+if ($mybb->settings['disableregs'] == 1 and !$mybb->settings['mytwconnect_keeprunning']) {
 
 	if (!$lang->registrations_disabled) {
 		$lang->load("member");
@@ -42,8 +42,9 @@ if (!in_array($mybb->input['action'], explode(',', ALLOWABLE_PAGE))) {
 // Begin the authenticating process
 if ($mybb->input['action'] == 'login') {
 	
+	// Already logged in? Redirect to the homepage
 	if ($mybb->user['uid']) {
-		error($lang->mytwconnect_error_alreadyloggedin);
+		header('Location: index.php');
 	}
 	
 	$TwitterConnect->authenticate();
@@ -67,19 +68,10 @@ if ($mybb->input['action'] == 'do_login') {
 		$process = $TwitterConnect->process($user);
 		
 		if ($process['error']) {
-			if (is_array($process['error']))
-			{
-			
-				foreach ($process['error'] as $err)
-				{
-					$errors .= $err;
-				}
-			}
-			else 
-			{
-			  $errors = $process['error'];
-			}
+
+			$errors = $process['error'];
 			$mybb->input['action'] = 'register';
+
 		}
 	}
 }
@@ -87,9 +79,9 @@ if ($mybb->input['action'] == 'do_login') {
 // Receive the incoming data from Twitter and evaluate the user
 if ($mybb->input['action'] == 'register') {
 	
-	// Already logged in? You should not use this
+	// Already logged in? Redirect to the homepage
 	if ($mybb->user['uid']) {
-		error($lang->mytwconnect_error_alreadyloggedin);
+		header('Location: index.php');
 	}
 	
 	$user = $TwitterConnect->get_user();
@@ -98,29 +90,22 @@ if ($mybb->input['action'] == 'register') {
 		$TwitterConnect->authenticate();
 	}
 		
+	$settingsToAdd = [];
+	$settingsToCheck = [
+		"twavatar",
+		"twbio",
+		"twlocation"
+	];
+		
 	// Came from our reg page
 	if ($mybb->request_method == "post") {
 	
-		$newuser = array();
+		$newuser = [];
 		$newuser['name'] = $mybb->input['username'];
 		$newuser['email'] = $mybb->input['email'];
 		
-		$settingsToAdd = array();
-		$settingsToCheck = array(
-			"twavatar",
-			"twbio",
-			"twlocation"
-		);
-		
 		foreach ($settingsToCheck as $setting) {
-		
-			if ($mybb->input[$setting] == 1) {
-				$settingsToAdd[$setting] = 1;
-			}
-			else {
-				$settingsToAdd[$setting] = 0;
-			}
-			
+			$settingsToAdd[$setting] = ($mybb->input[$setting] == 1) ? 1 : 0;
 		}
 		
 		// Register him
@@ -132,14 +117,14 @@ if ($mybb->input['action'] == 'register') {
 			$db->update_query('users', $settingsToAdd, 'uid = ' . (int) $user['uid']);
 			
 			// Sync
-			$newUser = array_merge($user, $settingsToAdd);
-			$TwitterConnect->sync($newUser);
+			$TwitterConnect->sync(array_merge($user, $settingsToAdd));
 			
 			// Login
 			$TwitterConnect->login($user);
 			
 			// Redirect
-			$TwitterConnect->redirect($mybb->input['redUrl'], $lang->sprintf($lang->mytwconnect_redirect_title, $user['username']), $lang->mytwconnect_redirect_registered);
+			$TwitterConnect->redirect($mybb->input['redirect_url'], $lang->sprintf($lang->mytwconnect_redirect_title, $user['username']), $lang->mytwconnect_redirect_registered);
+
 		}
 		else {
 			$errors = inline_error($user['error']);
@@ -147,14 +132,7 @@ if ($mybb->input['action'] == 'register') {
 	}
 	
 	$options = '';
-	$settingsToBuild = array();
-	
-	// Checking if we want to sync that stuff (admin)
-	$settingsToCheck = array(
-		'twavatar',
-		'twbio',
-		'twlocation'
-	);
+	$settingsToBuild = [];
 	
 	foreach ($settingsToCheck as $setting) {
 	
@@ -181,15 +159,17 @@ if ($mybb->input['action'] == 'register') {
 	if ($mybb->input['username']) {
 		$user['name'] = htmlspecialchars_uni($mybb->input['username']);
 	}
+
+	if ($mybb->input['email']) {
+		$user['email'] = htmlspecialchars_uni($mybb->input['email']);
+	}
+
+	$lang->mytwconnect_register_basic_info = $lang->sprintf($lang->mytwconnect_register_basic_info, $user['id']);
 	
-	$email = htmlspecialchars_uni($mybb->input['email']);
-	
-	$username = "<input type=\"text\" class=\"textbox\" name=\"username\" value=\"{$user['name']}\" placeholder=\"{$lang->mytwconnect_register_username_placeholder}\" />";
-	$email = "<input type=\"text\" class=\"textbox\" name=\"email\" value=\"{$email}\" placeholder=\"{$lang->mytwconnect_register_email_placeholder}\" />";
-	$redirectUrl = "<input type=\"hidden\" name=\"redUrl\" value=\"{$_SESSION['redirecturl']}\" />";
+	$redirect_url = $_SERVER['HTTP_REFERER'];
 	
 	// Output our page
-	eval("\$twregister = \"" . $templates->get("mytwconnect_register") . "\";");
-	output_page($twregister);
+	eval("\$register = \"" . $templates->get("mytwconnect_register") . "\";");
+	output_page($register);
 	
 }

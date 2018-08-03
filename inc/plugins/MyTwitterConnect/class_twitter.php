@@ -4,7 +4,7 @@
  * A bridge between MyBB with Twitter, featuring login, registration and more.
  *
  * @package Main API class
- * @version 2.0
+ * @version 3.0
  */
 
 class MyTwitter
@@ -45,7 +45,7 @@ class MyTwitter
 			$lang->load('mytwconnect');
 		}
 		
-		$this->security_key = md5($this->key.$this->secret);
+		$this->security_key = md5($this->key . $this->secret);
 		
 		$this->load_api();
 		$this->set_fallback();
@@ -67,11 +67,13 @@ class MyTwitter
 		}
 		
 		try {
-			require_once MYBB_ROOT . "mytwconnect/src/twitteroauth.php";
+			require_once MYBB_ROOT . "mytwconnect/autoload.php";
 		}
 		catch (Exception $e) {
 			error($lang->sprintf($lang->mytwconnect_error_report, $e->getMessage()));
 		}
+		
+		use Abraham\TwitterOAuth\TwitterOAuth;
 		
 		// Create our application instance
 		$this->load_object();
@@ -134,21 +136,21 @@ class MyTwitter
 		}
 		
 		// Get a temporary pair of tokens
-		$token = $this->twitter->getRequestToken($this->fallback);
+		$token = $this->twitter->oauth('oauth/request_token', ['oauth_callback' => $this->fallback]);
 		
-		$_SESSION[$this->security_key]['temporary'] = array(
+		$_SESSION[$this->security_key]['temporary'] = [
 			'oauth_token' => $token['oauth_token'],
 			'oauth_token_secret' => $token['oauth_token_secret']
-		);
+		];
 		
 		// Something went wrong
-		if ($this->twitter->http_code != 200) {
+		if ($this->twitter->getLastHttpCode() != 200) {
 	   		error($lang->mytwconnect_error_cantconnect);
 	   	}
 	   	
 	   	$_SESSION['orig_url'] = basename($_SERVER['HTTP_REFERER']);
 	   	
-	   	header('Location: ' . $this->twitter->getAuthorizeURL($token['oauth_token']));
+	   	header('Location: ' . $this->twitter->url('oauth/authorize', ['oauth_token' => $token['oauth_token']]));
 		
 		return true;
 	}
@@ -172,18 +174,16 @@ class MyTwitter
 		// Load the temporary Twitter object
 		$this->load_object('temporary');
 		
-		$_SESSION[$this->security_key]['access_token'] = $this->twitter->getAccessToken($_REQUEST['oauth_verifier']);
+		$_SESSION[$this->security_key]['access_token'] = $this->twitter->oauth("oauth/access_token", ["oauth_verifier" => $_REQUEST['oauth_verifier']]);
 		
 		unset($_SESSION[$this->security_key]['temporary']);
 		
-		if ($this->twitter->http_code != 200) {
+		if ($this->twitter->getLastHttpCode() != 200) {
 			error($lang->mytwconnect_error_noauth);
 		}
 		
 		// Reload the Twitter object. The user should be authenticated at this point, and we don't need to redirect another time.
-		$this->load_object('authenticated');
-		
-		return true;
+		return $this->load_object('authenticated');
 	}
 	
 	/**
@@ -193,23 +193,16 @@ class MyTwitter
 	{
 		global $lang;
 		
-		$user = (array) $this->twitter->get('account/verify_credentials');
+		$this->user = (array) $this->twitter->get('account/verify_credentials', ['include_email' => true]);
 		
 		// 200: ok
-		if ($this->twitter->http_code == 200) {
-			return $user;
+		if ($this->twitter->getLastHttpCode() == 200) {
+			return $this->user;
 		}
 		// 429: rate limit exceeded
-		else if ($this->twitter->http_code == 429) {
+		else if ($this->twitter->getLastHttpCode() == 429) {
 			error("Rate limit exceeded. Please retry later.");
 		}
-		
-		// At this point we must unset the tokens, they are not useful anymore
-		unset($_SESSION[$this->security_key]['access_token'], $this->authenticated);
-		
-		$this->load_object();
-		
-		return false;
 	}
 	
 	/**
@@ -223,21 +216,19 @@ class MyTwitter
 			return false;
 		}
 		
-		$thingsToReplace = array(
+		$thingsToReplace = [
 			"{bbname}" => $mybb->settings['bbname'],
 			"{bburl}" => $mybb->settings['bburl']
-		);
+		];
 		
 		// Replace what needs to be replaced
 		foreach ($thingsToReplace as $find => $replace) {
 			$message = str_replace($find, $replace, $message);
 		}
 		
-		$this->twitter->post('statuses/update', array(
+		return $this->twitter->post('statuses/update', [
 			'status' => $message
-		));
-		
-		return true;
+		]);
 	}
 	
 	/**
@@ -259,9 +250,9 @@ class MyTwitter
 		$db->delete_query("sessions", "ip='" . $db->escape_string($session->ipaddress) . "' and sid != '" . $session->sid . "'");
 		
 		// Create a new session
-		$db->update_query("sessions", array(
+		$db->update_query("sessions", [
 			"uid" => $user['uid']
-		), "sid='" . $session->sid . "'");
+		], "sid='" . $session->sid . "'");
 		
 		// Set up the login cookies
 		my_setcookie("mybbuser", $user['uid'] . "_" . $user['loginkey'], null, true);
@@ -279,15 +270,17 @@ class MyTwitter
 			return false;
 		}
 		
-		global $mybb, $session, $plugins, $lang;
+		global $mybb, $session, $lang;
 		
 		require_once MYBB_ROOT . "inc/datahandlers/user.php";
 		$userhandler = new UserDataHandler("insert");
-		
+
 		$plength = 8;
-		if ($mybb->settings['minpasswordlength']) {
+		if ($mybb->settings['minpasswordlength'] and $mybb->settings['minpasswordlength'] > $plength) {
 			$plength = (int) $mybb->settings['minpasswordlength'];
 		}
+		
+		$password = random_str($plength, true);
 		
 		// No email? Create a fictional one
 		if (!$user['email']) {
@@ -297,20 +290,18 @@ class MyTwitter
 			$email = $user['email'];
 		}
 		
-		$password = random_str($plength);
-		
-		$new_user = array(
+		$new_user = [
 			"username" => $user['name'],
 			"password" => $password,
 			"password2" => $password,
 			"email" => $user['email'],
 			"email2" => $user['email'],
-			"usergroup" => (int) $mybb->settings['mytwconnect_usergroup'],
+			"usergroup" => (int] $mybb->settings['mytwconnect_usergroup'],
 			"regip" => $session->ipaddress,
 			"longregip" => my_ip2long($session->ipaddress),
-			"options" => array(
+			"options" => [
 				"hideemail" => 1
-			)
+			]
 		);
 		
 		/* Registration might fail for custom profile fields required at registration... workaround = IN_ADMINCP defined.
@@ -322,8 +313,6 @@ class MyTwitter
 		if ($userhandler->validate_user()) {
 			
 			$user_info = $userhandler->insert_user();
-			
-			$plugins->run_hooks("member_do_register_end");
 			
 			// Deliver a welcome PM
 			if ($mybb->settings['mytwconnect_passwordpm']) {
@@ -341,29 +330,27 @@ class MyTwitter
 				$message = $mybb->settings['mytwconnect_passwordpm_message'];
 				$subject = $mybb->settings['mytwconnect_passwordpm_subject'];
 				
-				$thingsToReplace = array(
+				$thingsToReplace = [
 					"{user}" => $user_info['username'],
 					"{password}" => $password
-				);
+				];
 				
 				// Replace what needs to be replaced
 				foreach ($thingsToReplace as $find => $replace) {
 					$message = str_replace($find, $replace, $message);
 				}
 				
-				$pm = array(
-					"subject" => $subject,
-					"message" => $message,
-					"fromid" => $fromid,
-					"toid" => array(
+				$pm = [
+					'subject' => $subject,
+					'message' => $message,
+					'fromid' => $fromid,
+					'toid' => [
 						$user_info['uid']
-					)
-				);
-				
-				// Some defaults :)
-				$pm['options'] = array(
-					"signature" => 1
-				);
+					],
+					'options' => [
+						'signature' => 1
+					]
+				];
 				
 				$pmhandler->set_data($pm);
 				
@@ -386,12 +373,10 @@ class MyTwitter
 			
 		}
 		else {
-			return array(
-				'error' => $userhandler->get_friendly_errors()
+			return [
+				'error' => $userhandler->get_friendly_errors(]
 			);
 		}
-		
-		return true;
 	}
 	
 	/**
@@ -414,8 +399,8 @@ class MyTwitter
 			return false;
 		}
 		
-		$update = array(
-			"mytw_uid" => (int) $id
+		$update = [
+			"mytw_uid" => (int] $id
 		);
 		
 		$db->update_query("users", $update, "uid = {$user['uid']}");
@@ -449,9 +434,9 @@ class MyTwitter
 			return false;
 		}
 		
-		$update = array(
+		$update = [
 			"mytw_uid" => 0
-		);
+		];
 		
 		$db->update_query("users", $update, "uid = {$user['uid']}");
 		
@@ -469,35 +454,49 @@ class MyTwitter
 	/**
 	 * Processes an user
 	 */
-	public function process($user)
+	public function process()
 	{
 		global $mybb, $db, $session, $lang;
 		
-		if (!$user['id']) {
+		if (!$this->user['id']) {
 			error($lang->mytwconnect_error_noidprovided);
 		}
 		
+		$extra_sql = '';
+		if ($this->user['email']) {
+			$extra_sql .= " OR email = '" . $db->escape_string($this->user['email']) . "'";
+		}
+
+		/*
+		* DO NOT CAST AS (int) THIS USER IDENTIFIER!
+		*/
+		$hashed_id = md5($this->user['id']);
+		
 		// Let's see if you are already with us
-		$query   = $db->simple_select("users", "*", "mytw_uid = {$user['id']}", array(
-			"limit" => 1
-		));
+		$query   = $db->simple_select(
+			"users",
+			"*",
+			"mytw_uid = '{$hashed_id}' OR mytw_uid = '{$this->user['id']}'{$extra_sql}",
+			[
+				"limit" => 1
+			]
+		);
 		$account = $db->fetch_array($query);
-		$db->free_result($query);
 		
 		$message = $lang->mytwconnect_redirect_loggedin;
 		
+		// Link
+		if ($this->user['email'] and $account['email'] == $this->user['email'] and !$account['mytw_uid']) {
+			$this->link_user($account, $this->user['id']);
+		}
 		// Register
-		if (!$account) {
+		else if (!$account) {
 			
 			if (!$mybb->settings['mytwconnect_fastregistration']) {
-			
-				header("Location: mytwconnect.php?action=register");
-				return false;
-				
+				return header("Location: mytwconnect.php?action=register");
 			}
 			
-			global $plugins;
-			$account = $this->register($user);
+			$account = $this->register($this->user);
 			
 			if ($account['error']) {
 				return $account;
@@ -505,7 +504,7 @@ class MyTwitter
 			else {
 			
 				// Set some defaults
-				$toCheck = array('twavatar', 'twbio', 'twlocation');
+				$toCheck = ['twavatar', 'twbio', 'twlocation'];
 				foreach ($toCheck as $setting) {
 				
 					$tempKey = 'mytwconnect_' . $setting;
@@ -521,6 +520,11 @@ class MyTwitter
 			
 		}
 		
+		// Versions prior to 3.0 do not have hashed IDs. Unset mytw_uid so sync() can adjust it automatically
+		if ($account['mytw_uid'] == $this->user['id']) {
+			unset($account['mytw_uid']);
+		}
+		
 		// Login
 		$this->login($account);
 		
@@ -530,15 +534,13 @@ class MyTwitter
 		$title = $lang->sprintf($lang->mytwconnect_redirect_title, $account['username']);
 		
 		// Redirect
-		$this->redirect('', $title, $message);
-		
-		return true;
+		return $this->redirect('', $title, $message);
 	}
 	
 	/**
 	 * Synchronizes Twitter's data with MyBB's data
 	 */
-	public function sync($user, $data=array())
+	public function sync($user)
 	{
 		if (!$user['uid']) {
 			return false;
@@ -546,8 +548,8 @@ class MyTwitter
 		
 		global $mybb, $db, $session, $lang;
 		
-		$update    = array();
-		$userfield = array();
+		$update    = [];
+		$userfield = [];
 		
 		$locationid = "fid" . (int) $mybb->settings['mytwconnect_twlocationfield'];
 		$bioid      = "fid" . (int) $mybb->settings['mytwconnect_twbiofield'];
@@ -559,23 +561,22 @@ class MyTwitter
 		
 		$query = $db->simple_select("userfields", "ufid", "ufid = {$user['uid']}");
 		$check = $db->fetch_field($query, "ufid");
-		$db->free_result($query);
 		
 		if (!$check) {
 			$userfield['ufid'] = $user['uid'];
 		}
 		
 		// No Twitter ID? Sync it too!
-		if (!$user['mytw_uid'] and $data['id']) {
-			$update['mytw_uid'] = $data['id'];
+		if (!$user['mytw_uid'] and $this->user['id']) {
+			$update['mytw_uid'] = md5($this->user['id']);
 		}
 		
 		// Avatar
-		if ($user['twavatar'] and $data['profile_image_url_https'] and $mybb->settings['mytwconnect_twavatar']) {
+		if ($user['twavatar'] and $this->user['profile_image_url_https'] and $mybb->settings['mytwconnect_twavatar']) {
 			
 			list($maxwidth, $maxheight) = explode('x', my_strtolower($mybb->settings['maxavatardims']));
 			
-			$update["avatar"]     = $db->escape_string(str_replace('_normal.', '.', $data['profile_image_url_https']));
+			$update["avatar"]     = $db->escape_string(str_replace('_normal.', '.', $this->user['profile_image_url_https']));
 			$update["avatartype"] = "remote";
 			
 			// Copy the avatar to the local server (work around remote URL access disabled for getimagesize)
@@ -619,19 +620,19 @@ class MyTwitter
 		}
 		
 		// Bio
-		if ($user['twbio'] and $data['description'] and $mybb->settings['mytwconnect_twbio']) {
+		if ($user['twbio'] and $this->user['description'] and $mybb->settings['mytwconnect_twbio']) {
 			
 			if ($db->field_exists($bioid, "userfields")) {
-				$userfield[$bioid] = $db->escape_string(htmlspecialchars_decode(my_substr($data['description'], 0, 400, true)));
+				$userfield[$bioid] = $db->escape_string(htmlspecialchars_decode(my_substr($this->user['description'], 0, 400, true)));
 			}
 			
 		}
 		
 		// Location
-		if ($user['twlocation'] and $data['location'] and $mybb->settings['mytwconnect_twlocation']) {
+		if ($user['twlocation'] and $this->user['location'] and $mybb->settings['mytwconnect_twlocation']) {
 			
 			if ($db->field_exists($locationid, "userfields")) {
-				$userfield[$locationid] = $db->escape_string($data['location']);
+				$userfield[$locationid] = $db->escape_string($this->user['location']);
 			}
 			
 		}
@@ -686,8 +687,8 @@ class MyTwitter
 		if (!in_array($gid, $groups)) {
 			
 			$groups[] = $gid;
-			$update   = array(
-				"additionalgroups" => implode(",", array_filter($groups))
+			$update   = [
+				"additionalgroups" => implode(",", array_filter($groups])
 			);
 			$db->update_query("users", $update, "uid = {$user['uid']}");
 			
@@ -733,8 +734,8 @@ class MyTwitter
 			// Restore the array flipping it again (and filtering it)
 			$groups = array_filter(array_flip($groups));
 			
-			$update = array(
-				"additionalgroups" => implode(",", $groups)
+			$update = [
+				"additionalgroups" => implode(",", $groups]
 			);
 			$db->update_query("users", $update, "uid = {$user['uid']}");
 			
@@ -748,43 +749,20 @@ class MyTwitter
 	 */
 	public function redirect($url = '', $title = '', $message = '')
 	{
-		if (!$url) {
-		
-			$url = $_SESSION['orig_url'];
-			unset($_SESSION['orig_url']);
-			
+		if (!$url and $_SESSION['mytwconnect']['return_to_page']) {
+			$url = $_SESSION['mytwconnect']['return_to_page'];
 		}
-		
-		if (!strpos($url, "mytwconnect.php")) {
+		else if (!$url) {
+			$url = "index.php";
+		}
+
+		if ($url and strpos($url, "mytwconnect.php") === false) {
 			$url = htmlspecialchars_uni($url);
 		}
 		else {
 			$url = "index.php";
 		}
-		
-		redirect($url, $message, $title);
-		
-		return true;
-	}
-	
-	/**
-	 * Debugs any type of data, printing out an array and immediately killing the execution of the currently running script
-	 */
-	public function debug($data)
-	{
-		// Fallback for arrays
-		/*if (is_array($data)) {
-			$data = array_map('htmlspecialchars_uni', $data);
-		}*/
-		// Fallback for strings
-		/*else */if (is_string($data)) {
-			$data = htmlspecialchars_uni($data);
-		}
-		
-		echo "<pre>";
-		print_r($data);
-		echo "</pre>";
-		
-		exit;
+
+		return redirect($url, $message, $title);
 	}
 }

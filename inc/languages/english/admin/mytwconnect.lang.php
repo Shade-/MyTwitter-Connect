@@ -16,8 +16,10 @@ $l['setting_mytwconnect_fastregistration'] = "One-click registration";
 $l['setting_mytwconnect_fastregistration_desc'] = "If this option is disabled, when an user wants to register with Twitter he will be asked for permissions for your app if it's the first time he is loggin in, else he will be registered and logged in immediately without asking for username changes and what data to sync.";
 $l['setting_mytwconnect_usergroup'] = "After registration usergroup";
 $l['setting_mytwconnect_usergroup_desc'] = "Select the after-registration usergroup. The user will be inserted directly into this usergroup upon registering. Also, if an existing user links his account to Twitter, this usergroup will be added to his additional groups list.";
-$l['setting_mytwconnect_requestpublishingperms'] = "Request publishing permissions";
-$l['setting_mytwconnect_requestpublishingperms_desc'] = "If this option is enabled, the user will be asked for extra publishing permissions for your application. <b>This option should be left disabled (as it won't do anything in particular at the moment). In the future it will be crucial to let you post something on the user's wall when he registers or logins to your board.";
+$l['setting_mytwconnect_use_secondary'] = "Apply usergroup to existing users' secondary list";
+$l['setting_mytwconnect_use_secondary_desc'] = "If this option is enabled, existing users who link their account to Twitter will be granted the above usergroup within their secondary usergroups list. Otherwise, they will not be getting any usergroup upgrade.";
+$l['setting_mytwconnect_keeprunning'] = "Force operational status";
+$l['setting_mytwconnect_keeprunning_desc'] = "Enable this option to let MyTwitter Connect run even if registrations are disabled. This is particularly useful if you want to allow new registrations only with Twitter.";
 $l['setting_mytwconnect_passwordpm'] = "Send PM upon registration";
 $l['setting_mytwconnect_passwordpm_desc'] = "If this option is enabled, the user will be notified with a PM telling his randomly generated password upon his registration.";
 $l['setting_mytwconnect_passwordpm_subject'] = "PM subject";
@@ -50,8 +52,6 @@ $l['mytwconnect_default_passwordpm_message'] = "Welcome on our Forums, dear {use
 We appreciate that you have registered with Twitter. We have generated a random password for you which you should take note somewhere if you would like to change your personal infos. We require for security reasons that you specify your password when you change things such as the email, your username and the password itself, so keep it secret!
 
 Your password is: [b]{password}[/b]
-
-Also, due to the fact that we couldn't fetch your email during the Twitter login process, we may have registered you with a fictional email if not specified. We strongly recommend you to change it with a real email address to be able to access certain services in the future, such as the password restore system.
 
 With regards,
 our Team";
