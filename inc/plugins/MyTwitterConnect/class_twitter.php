@@ -390,8 +390,12 @@ class MyTwitter
 			return false;
 		}
 
+		$newUser = true;
 		if (!$user) {
+
 			$user = $mybb->user;
+			$newUser = false;
+
 		}
 
 		// Still no user?
@@ -399,20 +403,17 @@ class MyTwitter
 			return false;
 		}
 
-		$update = [
-			"mytw_uid" => (int] $id
-		);
-
-		$db->update_query("users", $update, "uid = {$user['uid']}");
+		$db->update_query("users", ['mytw_uid' => md5($id)], "uid = {$user['uid']}");
 
 		// Add to the usergroup
 		if ($mybb->settings['mytwconnect_usergroup']) {
-			$this->join_usergroup($user, $mybb->settings['mytwconnect_usergroup']);
-		}
 
-		// Post a message on the user's wall
-		if ($mybb->settings['mytwconnect_tweet']) {
-			$this->tweet($mybb->settings['mytwconnect_tweet_message']);
+			if (!$newUser and !$mybb->settings['mytwconnect_use_secondary']) {
+				return true;
+			}
+
+			$this->join_usergroup($user, $mybb->settings['mytwconnect_usergroup']);
+
 		}
 
 		return true;
@@ -434,11 +435,7 @@ class MyTwitter
 			return false;
 		}
 
-		$update = [
-			"mytw_uid" => 0
-		];
-
-		$db->update_query("users", $update, "uid = {$user['uid']}");
+		$db->update_query("users", ['mytw_uid' => 0], "uid = {$user['uid']}");
 
 		// Remove from the usergroup
 		if ($mybb->settings['mytwconnect_usergroup']) {

@@ -1,10 +1,10 @@
 <?php
 // Installation
 $l['mytwconnect'] = "MyTwitter Connect";
-$l['mytwconnect_pluginlibrary_missing'] = "<a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing. Please install it before doing anything else with mytwconnect.";
+$l['mytwconnect_pluginlibrary_missing'] = "<a href=\"http://mods.mybb.com/view/pluginlibrary\">PluginLibrary</a> is missing. Please install it before doing anything else with MyTwitter Connect.";
 
 // Settings
-$l['setting_group_mytwconnect'] = "Twitter login and registration settings";
+$l['setting_group_mytwconnect'] = "Twitter Login and Registration";
 $l['setting_group_mytwconnect_desc'] = "Here you can manage Twitter login and registration on your board, changing API keys and options to enable or disable certain aspects of MyTwitter Connect plugin.";
 $l['setting_mytwconnect_enable'] = "Master switch";
 $l['setting_mytwconnect_enable_desc'] = "Do you want to let your users login and register with Twitter? If an user is already registered the account will be linked to its Twitter account.";
@@ -60,6 +60,10 @@ $l['mytwconnect_default_tweet'] = "I have just registered on @{bbname}! Join me 
 // Errors
 $l['mytwconnect_error_needtoupdate'] = "You seem to have currently installed an outdated version of MyTwitter Connect. Please <a href=\"index.php?module=config-settings&update=mytwconnect\">click here</a> to run the upgrade script.";
 $l['mytwconnect_error_nothingtodohere'] = "Ooops, MyTwitter Connect is already up-to-date! Nothing to do here...";
+$l['mytwconnect_error_port_443_not_open'] = "A connection test has been made, and your server's 443 port seems to be closed. Twitter needs port 443 open to communicate and authenticate users. This test might fail under certain circumstances: <b>you can still install the plugin and give it a try by clicking <a href='index.php?module=config-plugins&action=activate&plugin=mytwconnect&skip_port_check=true&my_post_key={1}'>here</a></b>, but keep in mind that the connection test has returned an invalid response. If:<br /><br />
+<li>you are running on a <b>dedicated or premium hosting</b>, you most probably have access to a port manager or something similar. You can easily open 443 port on TCP protocol by accessing the manager.</li>
+<li>you are running on a <b>shared hosting</b>, or you don't have access to a port manager, you must contact your host and ask for port 443 to be opened for you. This is the only way to let your users login and register with Twitter.</li>
+The installation has been aborted for security reasons.";
 
 // Success
 $l['mytwconnect_success_updated'] = "MyTwitter Connect has been updated correctly from version {1} to {2}. Good job!";
