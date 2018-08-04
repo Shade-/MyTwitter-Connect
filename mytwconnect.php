@@ -100,9 +100,10 @@ if ($mybb->input['action'] == 'register') {
 	// Came from our reg page
 	if ($mybb->request_method == "post") {
 
-		$newuser = [];
-		$newuser['name'] = $mybb->input['username'];
-		$newuser['email'] = $mybb->input['email'];
+		$newuser = [
+			'name' => $mybb->input['username'],
+			'email' => $mybb->input['email']
+		];
 
 		foreach ($settingsToCheck as $setting) {
 			$settingsToAdd[$setting] = ($mybb->input[$setting] == 1) ? 1 : 0;
@@ -144,10 +145,11 @@ if ($mybb->input['action'] == 'register') {
 
 	}
 
+	$checked = " checked=\"checked\"";
+
 	foreach ($settingsToBuild as $setting) {
 
 		$tempKey = 'mytwconnect_settings_' . $setting;
-		$checked = " checked=\"checked\"";
 
 		$label = $lang->$tempKey;
 		$altbg = alt_trow();
