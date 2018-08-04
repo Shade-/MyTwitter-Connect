@@ -73,8 +73,6 @@ class MyTwitter
 			error($lang->sprintf($lang->mytwconnect_error_report, $e->getMessage()));
 		}
 
-		use Abraham\TwitterOAuth\TwitterOAuth;
-
 		// Create our application instance
 		$this->load_object();
 
@@ -296,13 +294,13 @@ class MyTwitter
 			"password2" => $password,
 			"email" => $user['email'],
 			"email2" => $user['email'],
-			"usergroup" => (int] $mybb->settings['mytwconnect_usergroup'],
+			"usergroup" => (int) $mybb->settings['mytwconnect_usergroup'],
 			"regip" => $session->ipaddress,
 			"longregip" => my_ip2long($session->ipaddress),
 			"options" => [
 				"hideemail" => 1
 			]
-		);
+		];
 
 		/* Registration might fail for custom profile fields required at registration... workaround = IN_ADMINCP defined.
 		Placed straight before the registration process to avoid conflicts with third party plugins messying around with
@@ -374,8 +372,8 @@ class MyTwitter
 		}
 		else {
 			return [
-				'error' => $userhandler->get_friendly_errors(]
-			);
+				'error' => $userhandler->get_friendly_errors()
+			];
 		}
 	}
 
@@ -685,8 +683,8 @@ class MyTwitter
 
 			$groups[] = $gid;
 			$update   = [
-				"additionalgroups" => implode(",", array_filter($groups])
-			);
+				"additionalgroups" => implode(",", array_filter($groups))
+			];
 			$db->update_query("users", $update, "uid = {$user['uid']}");
 
 		}
@@ -732,8 +730,8 @@ class MyTwitter
 			$groups = array_filter(array_flip($groups));
 
 			$update = [
-				"additionalgroups" => implode(",", $groups]
-			);
+				"additionalgroups" => implode(",", $groups)
+			];
 			$db->update_query("users", $update, "uid = {$user['uid']}");
 
 		}
