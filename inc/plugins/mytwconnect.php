@@ -17,9 +17,9 @@ if (!defined("PLUGINLIBRARY")) {
 	define("PLUGINLIBRARY", MYBB_ROOT . "inc/plugins/pluginlibrary.php");
 }
 
-if (!function_exists('verify_port_433')) {
+if (!function_exists('mytw_verify_port_433')) {
 
-	function verify_port_443()
+	function mytw_verify_port_443()
 	{
 		global $mybb, $lang;
 
@@ -76,7 +76,7 @@ function mytwconnect_install()
 		$lang->load('mytwconnect');
 	}
 
-	verify_port_443();
+	mytw_verify_port_443();
 
 	if (!file_exists(PLUGINLIBRARY)) {
 		flash_message($lang->mytwconnect_pluginlibrary_missing, "error");
