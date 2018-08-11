@@ -88,15 +88,15 @@ class MyTwitter
 
 		if ($type == 'authenticated' or $_SESSION[$this->security_key]['access_token']['oauth_token']) {
 
-			$this->twitter = new TwitterOAuth($this->key, $this->secret, $_SESSION[$this->security_key]['access_token']['oauth_token'], $_SESSION[$this->security_key]['access_token']['oauth_token_secret']);
+			$this->twitter = new Abraham\TwitterOAuth\TwitterOAuth($this->key, $this->secret, $_SESSION[$this->security_key]['access_token']['oauth_token'], $_SESSION[$this->security_key]['access_token']['oauth_token_secret']);
 			$this->authenticated = true;
 
 		}
 		else if ($type == 'temporary' or $_SESSION[$this->security_key]['temporary']['oauth_token']) {
-			$this->twitter = new TwitterOAuth($this->key, $this->secret, $_SESSION[$this->security_key]['temporary']['oauth_token'], $_SESSION[$this->security_key]['temporary']['oauth_token_secret']);			
+			$this->twitter = new Abraham\TwitterOAuth\TwitterOAuth($this->key, $this->secret, $_SESSION[$this->security_key]['temporary']['oauth_token'], $_SESSION[$this->security_key]['temporary']['oauth_token_secret']);			
 		}
 		else {
-			$this->twitter = new TwitterOAuth($this->key, $this->secret);
+			$this->twitter = new Abraham\TwitterOAuth\TwitterOAuth($this->key, $this->secret);
 		}
 
 		return true;
@@ -134,7 +134,12 @@ class MyTwitter
 		}
 
 		// Get a temporary pair of tokens
-		$token = $this->twitter->oauth('oauth/request_token', ['oauth_callback' => $this->fallback]);
+		try {
+			$token = $this->twitter->oauth('oauth/request_token', ['oauth_callback' => $this->fallback]);
+		}
+		catch (Exception $e) {
+			error($lang->sprintf($lang->mytwconnect_error_report, $e->getMessage()));
+		}
 
 		$_SESSION[$this->security_key]['temporary'] = [
 			'oauth_token' => $token['oauth_token'],
