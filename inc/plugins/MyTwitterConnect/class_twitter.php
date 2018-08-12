@@ -7,6 +7,8 @@
  * @version 3.0
  */
 
+use Abraham\TwitterOAuth\TwitterOAuth;
+
 class MyTwitter
 {
 	// The fallback URL where Twitter redirects users
@@ -88,15 +90,15 @@ class MyTwitter
 
 		if ($type == 'authenticated' or $_SESSION[$this->security_key]['access_token']['oauth_token']) {
 
-			$this->twitter = new Abraham\TwitterOAuth\TwitterOAuth($this->key, $this->secret, $_SESSION[$this->security_key]['access_token']['oauth_token'], $_SESSION[$this->security_key]['access_token']['oauth_token_secret']);
+			$this->twitter = new TwitterOAuth($this->key, $this->secret, $_SESSION[$this->security_key]['access_token']['oauth_token'], $_SESSION[$this->security_key]['access_token']['oauth_token_secret']);
 			$this->authenticated = true;
 
 		}
 		else if ($type == 'temporary' or $_SESSION[$this->security_key]['temporary']['oauth_token']) {
-			$this->twitter = new Abraham\TwitterOAuth\TwitterOAuth($this->key, $this->secret, $_SESSION[$this->security_key]['temporary']['oauth_token'], $_SESSION[$this->security_key]['temporary']['oauth_token_secret']);			
+			$this->twitter = new TwitterOAuth($this->key, $this->secret, $_SESSION[$this->security_key]['temporary']['oauth_token'], $_SESSION[$this->security_key]['temporary']['oauth_token_secret']);			
 		}
 		else {
-			$this->twitter = new Abraham\TwitterOAuth\TwitterOAuth($this->key, $this->secret);
+			$this->twitter = new TwitterOAuth($this->key, $this->secret);
 		}
 
 		return true;
