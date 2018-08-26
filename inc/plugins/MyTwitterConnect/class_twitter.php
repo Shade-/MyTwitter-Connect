@@ -140,7 +140,10 @@ class MyTwitter
 			$token = $this->twitter->oauth('oauth/request_token', ['oauth_callback' => $this->fallback]);
 		}
 		catch (Exception $e) {
-			error($lang->sprintf($lang->mytwconnect_error_report, $e->getMessage()));
+
+			$message = json_decode($e->getMessage());
+			error($lang->sprintf($lang->mytwconnect_error_report, $message->errors[0]->message));
+
 		}
 
 		$_SESSION[$this->security_key]['temporary'] = [
@@ -287,20 +290,9 @@ class MyTwitter
 
 		$password = random_str($plength, true);
 
-		// No email? Create a fictional one
-		if (!$user['email']) {
-			$email = $user['id'] . '@' . str_replace(' ', '', strtolower($mybb->settings['bbname'])) . '.com';
-		}
-		else {
-			$email = $user['email'];
-		}
-
 		$new_user = [
-			"username" => $user['name'],
+			"username" => htmlspecialchars_uni($user['name']),
 			"password" => $password,
-			"password2" => $password,
-			"email" => $user['email'],
-			"email2" => $user['email'],
 			"usergroup" => (int) $mybb->settings['mytwconnect_usergroup'],
 			"regip" => $session->ipaddress,
 			"longregip" => my_ip2long($session->ipaddress),
@@ -309,10 +301,9 @@ class MyTwitter
 			]
 		];
 
-		/* Registration might fail for custom profile fields required at registration... workaround = IN_ADMINCP defined.
-		Placed straight before the registration process to avoid conflicts with third party plugins messying around with
-		templates (I'm looking at you, PHPTPL) */
-		define("IN_ADMINCP", 1);
+		if ($user['email']) {
+			$new_user['email'] = $new_user['email2'] = htmlspecialchars_uni($user['email']);
+		}
 
 		$userhandler->set_data($new_user);
 		if ($userhandler->validate_user()) {

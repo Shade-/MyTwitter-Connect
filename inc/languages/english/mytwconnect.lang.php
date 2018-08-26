@@ -39,11 +39,12 @@ $l['mytwconnect_register_username'] = "Username:";
 $l['mytwconnect_register_email'] = "Email:";
 
 // Success messages
-$l['mytwconnect_success_linked'] = "Your MyBB account has been successfully linked to your Twitter one.";
-$l['mytwconnect_success_settingsupdated'] = "Your Twitter integration related settings have been updated correctly.";
-$l['mytwconnect_success_settingsupdated_title'] = "Settings updated";
-$l['mytwconnect_success_accunlinked_title'] = "Account unlinked";
-$l['mytwconnect_success_accunlinked'] = "Your Twitter account has been unlinked successfully from your MyBB's one.";
+$l['mytwconnect_success_account_linked_title'] = "Account linked";
+$l['mytwconnect_success_account_linked'] = "Your MyBB account has been successfully linked to your Twitter one.";
+$l['mytwconnect_success_settings_updated_title'] = "Settings updated";
+$l['mytwconnect_success_settings_updated'] = "Your Twitter integration related settings have been updated correctly.";
+$l['mytwconnect_success_account_unlinked_title'] = "Account unlinked";
+$l['mytwconnect_success_account_unlinked'] = "Your Twitter account has been unlinked successfully from your MyBB's one.";
 
 // Who's online
 $l['mytwconnect_viewing_loggingin'] = "<a href='mytwconnect.php?action=login'>Logging in with Twitter</a>";
